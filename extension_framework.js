@@ -1395,214 +1395,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
             return false;
         });
     };
-    game.taixuhuanjingHome = function () {
-        var home = ui.create.div('.taixuhuanjing_Home');
-        document.body.appendChild(home);
-        var homeBody = ui.create.div('.taixuhuanjing_HomeBody', home);
-        var homeButtonMenu = ui.create.div('.taixuhuanjing_consoledeskHomeButtonMenu', homeBody);
-        homeButtonMenu.onclick = function () {
-            if (!ui.click.configMenu) return;
-            ui.click.configMenu();
-            return false;
-        }; //QQQ返回按钮
-        var setTaiXuHomeSize = function () {
-            var screenWidth = ui.window.offsetWidth;
-            var screenHeight = ui.window.offsetHeight;
-            var whr = 2.05;
-            var width;
-            var height;
-            if (screenWidth / whr > screenHeight) {
-                height = screenHeight;
-                width = height * whr;
-            } else {
-                width = screenWidth;
-                height = screenWidth / whr;
-            }
-            homeBody.style.height = Math.round(height) + 'px';
-            homeBody.style.width = Math.round(width) + 'px';
-            homeBody.style.transform = 'translate(-50%,-50%) scale(0.9)';
-        };
-        setTaiXuHomeSize();
-        var reTaiXuHomesize = function () {
-            setTimeout(setTaiXuHomeSize, 500);
-        };
-        lib.onresize.push(reTaiXuHomesize);
-        var body = ui.create.div('.taixuhuanjing_HomeBodyBackground1', homeBody);
-        var season = lib.config.taixuhuanjing.season;
-        body.setBackgroundImage(`extension/太虚幻境/dlc/${season}/bg_${season}.jpg`);
-        var Text = ui.create.div('.taixuhuanjing_HomeBodyText', homeBody);
-        var updatetext = function () {
-            setTimeout(function () {
-                if (!game.seasonPack || !game.seasonPack[lib.config.taixuhuanjing.season]) {
-                    updatetext();
-                    return;
-                }
-                Text.innerHTML = game.seasonPack[lib.config.taixuhuanjing.season].info.randomGet();
-            }, 1000);
-        };
-        updatetext();
-        var seasonName = ui.create.div('.taixuhuanjing_HomeBodySeasonName', homeBody);
-        seasonName.setBackgroundImage(`extension/太虚幻境/dlc/${season}/title_${season}.png`); //QQQ
-        body.update = function () {
-            var season = lib.config.taixuhuanjing.season;
-            body.setBackgroundImage(`extension/太虚幻境/dlc/${season}/bg_${season}.jpg`);
-            seasonName.setBackgroundImage(`extension/太虚幻境/dlc/${season}/title_${season}.png`);
-            Text.innerHTML = game.seasonPack[season].info.randomGet();
-        };
-        seasonName.listen(function (e) {
-            if (lib.config.taixuhuanjing && lib.config.taixuhuanjing.name != null) {
-                game.messagePopup('请完成当前挑战');
-                return;
-            }
-            game.updateModeData();
-            home.replacePlayer();
-            var seasonPack = ['ChongYingChuLin', 'HuangTianZhiNu', 'HeJinZhuHuan', 'MGBaWangZhengCheng', 'GFHuangJinZhiLuan', 'GFChangBanZhiZhan', 'GFChiBiZhiZhan', 'GFQiQinMengHuo', 'LiGuoZhiLuan', 'ShiChangShiZhiLuan', 'QianLiZouDanJi', 'MGGuanDuZhiZhan', 'NSHeZhongKangQin', 'HaiWaiFenghe', 'YcFuQinYiZhou', 'PveKuibaSkMitan'];
-            var num = 0;
-            for (var i = 0; i < seasonPack.length; i++) {
-                if (lib.config.taixuhuanjing.season == seasonPack[i]) {
-                    num = i;
-                    break;
-                }
-            }
-            if (num + 1 == seasonPack.length) {
-                lib.config.taixuhuanjing.season = seasonPack[0];
-            } else {
-                lib.config.taixuhuanjing.season = seasonPack[num + 1];
-            }
-            if (!lib.config.taixuhuanjingNode || lib.config.taixuhuanjingNode[lib.config.taixuhuanjing.season] == undefined) {
-                lib.config.taixuhuanjing.rank = 1;
-            } else if (lib.config.taixuhuanjingNode[lib.config.taixuhuanjing.season] && lib.config.taixuhuanjingNode[lib.config.taixuhuanjing.season].rank) {
-                lib.config.taixuhuanjing.rank = lib.config.taixuhuanjingNode[lib.config.taixuhuanjing.season].rank;
-            }
-            body.update();
-            game.messagePopup(lib.translate[`txhj_${lib.config.taixuhuanjing.season}`] + '赛季');
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        });
-        var rule = ui.create.div('.taixuhuanjing_HomeBodySeasonRule', seasonName);
-        var ruleBox = ui.create.div('.taixuhuanjing_HomeBodySeasonBox', homeBody);
-        var ruleShadow = ui.create.div('.taixuhuanjing_HomeBodySeasonTitleShadow', '太虚幻境通關指南', ruleBox);
-        var ruleTitle = ui.create.div('.taixuhuanjing_HomeBodySeasonTitle', '太虚幻境通關指南', ruleBox);
-        var ruleText = ui.create.div('.taixuhuanjing_HomeBodySeasonText', txhj.rule + '', ruleBox);
-        lib.setScroll(ruleText);
-        ruleBox.listen(function (e) {
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        });
-        rule.listen(function (e) {
-            game.txhj_playAudioCall('WinButton', null, true);
-            ruleBox.style.display = 'block';
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        });
-        homeBody.listen(function (e) {
-            ruleBox.style.display = 'none';
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        });
-        var tujianButton = ui.create.div('.taixuhuanjing_HomeBodyTuJianButton', homeBody).listen(function (e) {
-            game.txhj_playAudioCall('WinButton', null, true);
-            game.collectHome();
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        });
-        var jiluButton = ui.create.div('.taixuhuanjing_HomeBodyJiLuButton', homeBody).listen(function (e) {
-            game.txhj_playAudioCall('WinButton', null, true);
-            game.txhjRecordHome();
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        });
-        var newJourne = ui.create.div('.taixuhuanjing_HomeBodyNewJourney', homeBody);
-        newJourne.listen(function (e) {
-            game.txhj_playAudioCall('WinButton', null, true);
-            ruleBox.style.display = 'none';
-            if (lib.config.taixuhuanjing == undefined) {
-                game.updateModeData();
-                home.replacePlayer();
-            } else if (lib.config.taixuhuanjing.name != null) {
-                var src = '是否删除当前挑战的进度?';
-                var d = confirm(src);
-                if (d == true) {
-                    game.updateModeData();
-                    home.replacePlayer();
-                }
-                return;
-            }
-            home.delete();
-            lib.onresize.remove(reTaiXuHomesize);
-            game.chooseCharacter();
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        });
-        var oldJourne = ui.create.div('.taixuhuanjing_HomeBodyOldJourney', homeBody);
-        oldJourne.listen(function (e) {
-            game.txhj_playAudioCall('WinButton', null, true);
-            ruleBox.style.display = 'none';
-            if (lib.config.taixuhuanjing == undefined) {
-                game.updateModeData();
-            }
-            if (lib.config.taixuhuanjing.name == null || lib.config.taixuhuanjing.servant == null) {
-                game.messagePopup('无相关进度');
-                return;
-            }
-            _status.choiceCharacter = lib.config.taixuhuanjing.name;
-            game.transitionAnimation();
-            setTimeout(function () {
-                home.delete();
-                lib.onresize.remove(reTaiXuHomesize);
-                game.consoledesk();
-            }, 1000);
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        });
-        var point = ui.create.div('.taixuhuanjing_HomeBodyPoint', homeBody);
-        point.listen(function (e) {
-            game.txhj_playAudioCall('WinButton', null, true);
-            ruleBox.style.display = 'none';
-            if (lib.config.taixuhuanjing == undefined) {
-                game.updateModeData();
-            }
-            if (lib.config.taixuhuanjing && lib.config.taixuhuanjing.name != null) {
-                game.messagePopup('请完成当前挑战');
-                return;
-            }
-            game.choiceCharacter(home);
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        });
-        home.replacePlayer = function (value) {
-            point.innerHTML = '';
-            if (value) {
-                if (!_status.choiceCharacter) return;
-                var name = _status.choiceCharacter;
-                lib.config.taixuhuanjing.point = name;
-                game.saveConfig('taixuhuanjing', lib.config.taixuhuanjing);
-                point.innerHTML = '';
-                var playImp1 = ui.create.div('.taixuhuanjing_HomeBodyPointImp1', point);
-                var playImp2 = ui.create.div('.taixuhuanjing_HomeBodyPointImp2', playImp1);
-                playImp2.setBackground(name, 'character');
-                var nameText = ui.create.div('.taixuhuanjing_HomeBodyPointText', `${lib.translate[name]}`, point);
-            } else {
-                if (!lib.config.taixuhuanjing || lib.config.taixuhuanjing.point == null) return;
-                point.innerHTML = '';
-                var name = lib.config.taixuhuanjing.point;
-                var playImp1 = ui.create.div('.taixuhuanjing_HomeBodyPointImp1', point);
-                var playImp2 = ui.create.div('.taixuhuanjing_HomeBodyPointImp2', playImp1);
-                playImp2.setBackground(name, 'character');
-                var nameText = ui.create.div('.taixuhuanjing_HomeBodyPointText', `${lib.translate[name]}`, point);
-            }
-        };
-        home.replacePlayer();
-    };
     game.choiceCharacter = function (view) {
         var homeBody = ui.create.div('.taixuhuanjing_HomeBody2', view);
         var setChoiceCharacterSize = function () {
@@ -5717,228 +5509,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         });
         return body;
     };
-    game.levelUp = function (str, list, result, view) {
-        game.txhj_playAudioCall('LevelUp', null, true);
-        const homeBody = ui.create.div('.taixuhuanjing_StateHomeBody2', view);
-        homeBody.oncontextmenu = function (e) {
-            /*右键*/
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        };
-        var choice;
-        var title = ui.create.div('.taixuhuanjing_StateHomeTitle', str + '', homeBody);
-        var title2 = ui.create.div('.taixuhuanjing_StateHomeTitle2', '请选择以下 1 项效果获取', homeBody);
-        var box = ui.create.div('.taixuhuanjing_StateHomeBox', homeBody);
-        function func(spoil) {
-            const div = ui.create.div('.taixuhuanjing_StateHomeBoxDiv');
-            var bg1 = ui.create.div('.taixuhuanjing_StateHomeBoxDivBg1', div);
-            var bg2 = ui.create.div('.taixuhuanjing_StateHomeBoxDivBg2', div);
-            var name = spoil.name;
-            var divName = ui.create.div('.taixuhuanjing_StateHomeBoxDivName', `${name}`, div);
-            if (spoil.type == 'randomSkill') {
-                var skills = txhjPack.skillRank.slice(0);
-                var listm = get.character(lib.config.taixuhuanjing.name, 3).slice(0);
-                for (var i = 0; i < skills.length; i++) {
-                    var skillID = skills[i].skillID;
-                    if (!skillID) {
-                        delete skills[i];
-                    }
-                    if (lib.config.taixuhuanjing.useSkills.includes(skillID)) {
-                        delete skills[i];
-                    } else if (listm.includes(skillID)) {
-                        delete skills[i];
-                    }
-                }
-                var skill = skills.randomGet();
-                div.choice = {
-                    return: true,
-                    name: '技能',
-                    effect: [{ name: 'skill', number: 1, result: skill.skillID }],
-                };
-                var skillName = get.translation(skill.skillID);
-                var skillInfo = lib.translate[`${skill.skillID}_info`];
-                var divSkill = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkill', div);
-                var divSkillNameShadow = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkillNameShadow', `${skillName}`, divSkill);
-                var divSkillName = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkillName', `${skillName}`, divSkill);
-                var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo2', `${skillInfo}`, div);
-            } else if (spoil.type == 'randomCard') {
-                const list = [];
-                const cards = txhjPack.cardPack.slice(0);
-                if (Array.isArray(cards))
-                    for (var i of cards) {
-                        if (lib.translate[i.cardID] && get.type(i.cardID) != 'equip') {
-                            list.push(i.cardID);
-                        }
-                    }
-                const name = list.randomGet();
-                div.choice = {
-                    return: true,
-                    name: '卡牌',
-                    effect: [{ name: 'card', number: 1, result: name }],
-                };
-                const card2 = game.createCard(name);
-                card2.classList.add('taixucard');
-                div.appendChild(card2);
-            } else if (spoil.type == 'randomEquip') {
-                const list = [];
-                for (const i of txhjPack.cardRank) {
-                    if (i.unique != false) continue;
-                    const name = i.cardID;
-                    if (lib.translate[name] && get.type(name) == 'equip') {
-                        list.push(name);
-                    }
-                } //QQQ
-                const name = list.randomGet();
-                div.choice = {
-                    return: true,
-                    name: '装备',
-                    effect: [{ name: 'equip', number: 1, result: name }],
-                };
-                const card2 = game.createCard(name);
-                card2.classList.add('taixucard');
-                div.appendChild(card2);
-            } else if (spoil.type == 'randomBuff') {
-                var buffs = [];
-                for (var i in game.buffPack) {
-                    if (game.buffPack[i].store == false) continue;
-                    if (!lib.config.taixuhuanjing.buff.includes(i)) {
-                        buffs.push(i);
-                    }
-                }
-                var buff = buffs.randomGet();
-                div.choice = {
-                    return: true,
-                    name: '祝福',
-                    effect: [{ name: 'buff', number: 1, result: buff }],
-                };
-                var skillName = game.buffPack[buff].name;
-                var divImpBg = ui.create.div('.taixuhuanjing_StateHomeBoxDivImpBg', div);
-                var divImp = ui.create.div('.taixuhuanjing_StateHomeBoxDivImp', div);
-                divImp.setBackgroundImage(`extension/太虚幻境/image/buff/${buff}.png`);
-                var skillInfo = game.buffPack[buff].info;
-                var desc = ui.create.div('.taixuhuanjing_StateHomeBoxDivDesc');
-                desc.style.width = '330%';
-                divImp.appendChild(desc);
-                desc.innerHTML = `<p style='color: gold;margin: 2%;'>${skillName}</p><p style='margin: 2%;'>${skillInfo}</p>`;
-                divImp.onmouseover = function (e) {
-                    div.style.zIndex = '11';
-                    var width = document.body.offsetWidth;
-                    var height = document.body.offsetHeight;
-                    var startX = e.clientX / game.documentZoom;
-                    var startY = e.clientY / game.documentZoom;
-                    var rise1 = Math.round((startX / width) * 10000) / 100;
-                    var rise2 = Math.round((startY / height) * 10000) / 100;
-                    if (rise1 > 70) {
-                        desc.style.left = '-330%';
-                    } else {
-                        desc.style.left = '100%';
-                    }
-                    desc.style.top = `-${rise2}%`;
-                    desc.style.display = 'block';
-                };
-                divImp.onmouseout = function () {
-                    div.style.zIndex = '10';
-                    desc.style.display = 'none';
-                };
-                var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', skillName + '', div);
-            } else {
-                var divImp = ui.create.div('.taixuhuanjing_StateHomeBoxDivImp', div);
-                if (spoil.type == 'coin') {
-                    var divImp = ui.create.div('.taixuhuanjing_StateHomeBoxDivImp', div);
-                    divImp.setBackgroundImage('extension/太虚幻境/image/icon/coin.png');
-                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '金币+300', div);
-                    div.choice = {
-                        return: true,
-                        name: '金币',
-                        effect: [{ name: 'coin', number: 300 }],
-                    };
-                }
-                if (spoil.type == 'maxHp') {
-                    divImp.setBackgroundImage('extension/太虚幻境/image/icon/maxHp.png');
-                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '体力上限+1', div);
-                    div.choice = {
-                        return: true,
-                        name: '体力上限',
-                        effect: [{ name: 'maxHp', number: 1 }],
-                    };
-                }
-                if (spoil.type == 'hp') {
-                    divImp.setBackgroundImage(`extension/太虚幻境/image/icon/${spoil.type}.png`);
-                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '体力+1', div);
-                    div.choice = {
-                        return: true,
-                        name: '体力',
-                        effect: [{ name: 'hp', number: 1 }],
-                    };
-                }
-                if (spoil.type == 'minHs') {
-                    20562;
-                    divImp.setBackgroundImage('extension/太虚幻境/image/icon/minHs.png');
-                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '初始手牌+1', div);
-                    div.choice = {
-                        return: true,
-                        name: '初始手牌',
-                        effect: [{ name: 'minHs', number: 1 }],
-                    };
-                }
-                if (spoil.type == 'maxHs') {
-                    divImp.setBackgroundImage('extension/太虚幻境/image/icon/maxHs.png');
-                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '手牌上限+2', div);
-                    div.choice = {
-                        return: true,
-                        name: '手牌上限',
-                        effect: [{ name: 'maxHs', number: 2 }],
-                    };
-                }
-                if (spoil.type == 'adjust') {
-                    divImp.setBackgroundImage('extension/太虚幻境/image/icon/adjust.png');
-                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '调度次数+1', div);
-                    div.choice = {
-                        return: true,
-                        name: '调度次数',
-                        effect: [{ name: 'adjust', number: 1 }],
-                    };
-                }
-            }
-            div.listen(function (e) {
-                game.txhj_playAudioCall('WinButton', null, true);
-                choice = div.choice;
-                if (box.choosingNow) {
-                    box.choosingNow.noChoiced();
-                }
-                this.choiced();
-                event.cancelBubble = true;
-                event.returnValue = false;
-                return false;
-            });
-            div.choiced = function () {
-                box.choosingNow = this;
-                bg1.setBackgroundImage('extension/太虚幻境/image/icon/icon_frame18.png');
-            };
-            div.noChoiced = function () {
-                box.choosingNow = null;
-                bg1.style.backgroundImage = 'none';
-            };
-            return div;
-        }
-        var button = ui.create.div('.taixuhuanjing_StateHomeBoxButton', '确认选择', box);
-        button.listen(function (e) {
-            if (!choice) {
-                game.messagePopup('请选择一项效果');
-                return;
-            }
-            game.txhj_playAudioCall('off', null, true);
-            view.update([choice]);
-            view.removeChild(homeBody);
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        });//这里点击的时候可能已经跳了周目
-        for (const i of list) {
-            box.appendChild(func(i));
-        }
-    };
     game.cardPileTx = function () {
         if (!txhj.isInitCardPileTx) {
             lib.card.list = [];
@@ -6363,595 +5933,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         }
         return list;
     };
-    game.TaiXuHuanJingState = function (type) {
-        taixu.zhongzhi = true;
-        taixu.gameDraw.finish();
-        taixu.phaseLoop.finish();
-        const players = game.players.concat(game.dead);
-        for (const i of players) {
-            game.removePlayer(i);
-        }
-        ui.me.remove();
-        ui.mebg.remove();
-        ui.handcards1Container.remove();
-        ui.handcards2Container.remove();
-        for (const i of Array.from(ui.arena.childNodes)) {
-            if (i.classList.contains('center')) {
-                i.remove();
-            }
-        } //清空中央区卡牌
-        _status.modeNode.score.round += game.roundNumber;
-        _status.modeNode.score.fight += 1;
-        lib.config.taixuhuanjing = _status.modeNode;
-        ui.arenalog.innerHTML = ''; /*清除历史记录*/
-        ui.historybar.innerHTML = ''; /*清除出牌记录*/
-        ui.cardPile.innerHTML = '';
-        ui.discardPile.innerHTML = '';
-        ui.sidebar.innerHTML = ''; /*清除暂停记录*/
-        ui.sidebar3.innerHTML = ''; /*清除暂停记录*/
-        const rank = lib.config.taixuhuanjing.rank;
-        const season = lib.config.taixuhuanjing.season || _status.TaiXuHuanJingGame.season;
-        const chapter = _status.TaiXuHuanJingGame.chapter;
-        let num = lib.config.taixuhuanjing.exp;
-        const id = _status.TaiXuHuanJingGame.event.id;
-        const evtid = game.eventPack[season][chapter][id];
-        if (lib.config.taixuhuanjing.buff.includes('buff_txhj_aozhan')) {
-            if (game.me.hp > 0) {
-                lib.config.taixuhuanjing.hp = game.me.hp;
-                lib.config.taixuhuanjing.maxHp = game.me.maxHp;
-            } else {
-                lib.config.taixuhuanjing.hp = 1;
-                lib.config.taixuhuanjing.maxHp = game.me.maxHp;
-            }
-        } else {
-            if (type != null && lib.config.taixuhuanjing.buff.includes('buff_txhj_xianhujiqu')) {
-                if (game.me.maxHp > lib.config.taixuhuanjing.maxHp) {
-                    lib.config.taixuhuanjing.maxHp += game.me.maxHp - lib.config.taixuhuanjing.maxHp;
-                }
-            }
-            lib.config.taixuhuanjing.hp = lib.config.taixuhuanjing.maxHp;
-        }
-        lib.config.taixuhuanjing.buff = _status.modeBuff.slice(0);
-        lib.config.taixuhuanjing.useSkills = _status.modeSkill.slice(0);
-        delete _status.modeNode;
-        delete _status.modeBuff;
-        delete _status.modeSkill;
-        var str2 = '普通';
-        if (rank == 2) {
-            str2 = '困难';
-        } else if (rank == 3) {
-            str2 = '噩梦';
-        } else if (rank == 4) {
-            str2 = '炼狱';
-        } else if (rank == 5) {
-            str2 = '血战';
-        }
-        if (type == true && evtid.type == 'Ultimate') {
-            if (!lib.config.mode_config.taixuhuanjing.zhoumu) {
-                if (typeof chapter == 'string' && chapter.indexOf('IF') != -1) {
-                    if (!lib.config.taixuhuanjingRecord) lib.config.taixuhuanjingRecord = {};
-                    var timeID = new Date().getTime();
-                    lib.config.taixuhuanjing.time = timeID;
-                    if (!lib.config.taixuhuanjingRecord) lib.config.taixuhuanjingRecord = {};
-                    lib.config.taixuhuanjingRecord[timeID] = lib.config.taixuhuanjing;
-                    game.saveConfig('taixuhuanjingRecord', lib.config.taixuhuanjingRecord);
-                    _status.TaiXuHuanJingGame.return = true;
-                }
-                if (typeof chapter == 'number' && game.seasonPack[season][`${chapter}IF`]) {
-                    var premise = game.seasonPack[season][`${chapter}IF`].premise.slice(0);
-                    var result = premise.length;
-                    for (var i = 0; i < premise.length; i++) {
-                        for (var e = 0; e < lib.config.taixuhuanjing.events.length; e++) {
-                            if (lib.config.taixuhuanjing.events[e].id == premise[i]) {
-                                result--;
-                            }
-                        }
-                    }
-                    if (result == 0) {
-                        var src = `恭喜您已通过:【${game.seasonPack[season].name}】(${str2})赛季试炼,` + '是否继续体验隐藏内容?';
-                        var d = confirm(src);
-                        if (d == true) {
-                            lib.config.taixuhuanjing.chapter = chapter + 'IF';
-                            delete lib.config.taixuhuanjing.store;
-                            lib.config.taixuhuanjing.procedure = null;
-                            lib.config.taixuhuanjing.optional1 = null;
-                            lib.config.taixuhuanjing.optional2 = null;
-                            lib.config.taixuhuanjing.optional3 = null;
-                            lib.config.taixuhuanjing.optionalExam = [];
-                            if (lib.config.taixuhuanjingNode[season] && lib.config.taixuhuanjingNode[season].rank && rank >= lib.config.taixuhuanjingNode[season].rank) {
-                                lib.config.taixuhuanjingNode[season].rank++;
-                                if (lib.config.taixuhuanjingNode[season].rank > 5) lib.config.taixuhuanjingNode[season].rank = 5;
-                                if (lib.config.taixuhuanjingNode[season].reach && lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]) {
-                                    lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]++;
-                                } else {
-                                    if (!lib.config.taixuhuanjingNode[season].reach) lib.config.taixuhuanjingNode[season].reach = {};
-                                    lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
-                                }
-                            } else {
-                                lib.config.taixuhuanjingNode[season] = {
-                                    rank: 2,
-                                    reach: {},
-                                };
-                                lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
-                            }
-                            lib.config.taixuhuanjingNode.reach[lib.config.taixuhuanjing.name] = 1;
-                            game.saveConfig('taixuhuanjingNode', lib.config.taixuhuanjingNode);
-                        } else {
-                            if (lib.config.taixuhuanjingNode[season] && lib.config.taixuhuanjingNode[season].rank && rank >= lib.config.taixuhuanjingNode[season].rank) {
-                                lib.config.taixuhuanjingNode[season].rank++;
-                                if (lib.config.taixuhuanjingNode[season].rank > 5) lib.config.taixuhuanjingNode[season].rank = 5;
-                                if (lib.config.taixuhuanjingNode[season].reach && lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]) {
-                                    lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]++;
-                                } else {
-                                    if (!lib.config.taixuhuanjingNode[season].reach) lib.config.taixuhuanjingNode[season].reach = {};
-                                    lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
-                                }
-                            } else {
-                                lib.config.taixuhuanjingNode[season] = {
-                                    rank: 2,
-                                    reach: {},
-                                };
-                                lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
-                            }
-                            game.saveConfig('taixuhuanjingNode', lib.config.taixuhuanjingNode);
-                            var timeID = new Date().getTime();
-                            lib.config.taixuhuanjing.time = timeID;
-                            if (!lib.config.taixuhuanjingRecord) lib.config.taixuhuanjingRecord = {};
-                            lib.config.taixuhuanjingRecord[timeID] = lib.config.taixuhuanjing;
-                            game.saveConfig('taixuhuanjingRecord', lib.config.taixuhuanjingRecord);
-                            _status.TaiXuHuanJingGame.return = true;
-                        }
-                    }
-                } else {
-                    //alert(`恭喜您已通过:【${game.seasonPack[season].name}】(${str2})赛季试炼`);
-                    if (lib.config.taixuhuanjingNode[season] && lib.config.taixuhuanjingNode[season].rank && rank >= lib.config.taixuhuanjingNode[season].rank) {
-                        lib.config.taixuhuanjingNode[season].rank++;
-                        if (lib.config.taixuhuanjingNode[season].rank > 5) lib.config.taixuhuanjingNode[season].rank = 5;
-                        if (lib.config.taixuhuanjingNode[season].reach && lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]) {
-                            lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]++;
-                        } else {
-                            if (!lib.config.taixuhuanjingNode[season].reach) lib.config.taixuhuanjingNode[season].reach = {};
-                            lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
-                        }
-                    } else {
-                        lib.config.taixuhuanjingNode[season] = {
-                            rank: 2,
-                            reach: {},
-                        };
-                        lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
-                    }
-                    game.saveConfig('taixuhuanjingNode', lib.config.taixuhuanjingNode);
-                    var timeID = new Date().getTime();
-                    lib.config.taixuhuanjing.time = timeID;
-                    if (!lib.config.taixuhuanjingRecord) lib.config.taixuhuanjingRecord = {};
-                    lib.config.taixuhuanjingRecord[timeID] = lib.config.taixuhuanjing;
-                    game.saveConfig('taixuhuanjingRecord', lib.config.taixuhuanjingRecord);
-                    _status.TaiXuHuanJingGame.return = true;
-                }
-            } else {
-                _status.zhoumu = true;
-            }//换周目时候改了这些东西导致找不到对应game.eventPack
-        }
-        var home = ui.create.div('.taixuhuanjing_StateHome');
-        home.oncontextmenu = function (e) {
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        };
-        document.body.appendChild(home);
-        const homeBody = ui.create.div('.taixuhuanjing_StateHomeBody', home);
-        var setStateSize = function () {
-            var screenWidth = ui.window.offsetWidth;
-            var screenHeight = ui.window.offsetHeight;
-            var whr = 2.0;
-            var width;
-            var height;
-            if (screenWidth / whr > screenHeight) {
-                height = screenHeight;
-                width = height * whr;
-            } else {
-                width = screenWidth;
-                height = screenWidth / whr;
-            }
-            homeBody.style.height = Math.round(height) + 'px';
-            homeBody.style.width = Math.round(width) + 'px';
-            homeBody.style.transform = 'translate(-50%,-50%) scale(0.9)';
-        };
-        setStateSize();
-        var reStatesize = function () {
-            setTimeout(setStateSize, 500);
-        };
-        lib.onresize.push(reStatesize);
-        var gameIcon = ui.create.div('.taixuhuanjing_StateHomeGameIcon', homeBody);
-        var gameText = ui.create.div('.taixuhuanjing_StateHomeGameText', gameIcon);
-        var gameInfo = ui.create.div('.taixuhuanjing_StateHomeGameInfo', gameIcon);
-        var okButton = ui.create.div('.taixuhuanjing_StateHomeOkButton', homeBody);
-        var okText = ui.create.div('.taixuhuanjing_StateHomeOkText', okButton);
-        okButton.listen(function (e) {
-            game.txhj_playAudioCall('off', null, true);
-            setTimeout(function () {
-                home.delete();
-                lib.onresize.remove(reStatesize);
-            }, 500);
-            game.transitionAnimation();
-            setTimeout(function () {
-                game.consoledesk();
-            }, 1000); //战绩结算之后返回大厅
-            event.cancelBubble = true;
-            event.returnValue = false;
-            return false;
-        }); //点击继续下一局
-        if (type == null) {
-            gameIcon.setBackgroundImage('extension/太虚幻境/image/style/game_false_icon.png');
-            gameText.setBackgroundImage('extension/太虚幻境/image/style/game_false_text.png');
-            game.txhj_playAudioCall('Loss', null, true);
-            var timeID = new Date().getTime();
-            lib.config.taixuhuanjing.time = timeID;
-            if (!lib.config.taixuhuanjingRecord) {
-                lib.config.taixuhuanjingRecord = {};
-            }
-            lib.config.taixuhuanjingRecord[timeID] = lib.config.taixuhuanjing;
-            game.saveConfig('taixuhuanjingRecord', lib.config.taixuhuanjingRecord);
-            _status.TaiXuHuanJingGame.return = false;
-        } else if (type == false) {
-            gameIcon.setBackgroundImage('extension/太虚幻境/image/style/game_loss_icon.png');
-            gameText.setBackgroundImage('extension/太虚幻境/image/style/game_loss_text.png');
-            game.txhj_playAudioCall('Loss', null, true);
-        } else {
-            game.txhj_playAudioCall('Win', null, true);
-        }
-        //上一局最后用的牌和敌人死后弃牌会在下一局时显示的bug
-        if (ui.thrown && ui.thrown.length) {
-            for (var i = 0; i < ui.thrown.length; i++) {
-                ui.thrown[i].remove();
-            }
-        }
-        //不知道会不会出其他bug
-        if (lib.skill._changeJudges) {
-            let ss = document.querySelector('.skill-control');
-            ss.removeChild(game.me.node.judges);
-        }
-        //
-        ui.clear();
-        ui.mebg.remove();
-        ui.me.remove();
-        ui.handcards1Container.remove();
-        ui.handcards2Container.remove();
-        if (window.dui) {
-            ui.equipSolts.remove();
-        }
-        function clearSLBuff() {
-            var buffDesc = document.querySelectorAll('.SLBuffDesc');
-            if (buffDesc.length) {
-                for (const ele of buffDesc) {
-                    ele.parentNode.removeChild(ele);
-                }
-            }
-            var ssui = document.getElementsByClassName('skill-control');
-            var buffs = ssui.length ? document.querySelectorAll('.playerbuffstyle2') : document.querySelectorAll('.playerbuffstyle3');
-            if (buffs.length) {
-                for (const buff of buffs) {
-                    buff.parentNode.removeChild(buff);
-                }
-            }
-        }
-        clearSLBuff();
-        delete game.me.buff;
-        var levelBody = ui.create.div('.taixuhuanjing_StateHomelevelBody', homeBody);
-        var spoilsBody = ui.create.div('.taixuhuanjing_StateHomeSpoilsBody', homeBody);
-        if (type != null) {
-            num += evtid.exp;
-        }
-        const max = lib.config.taixuhuanjing.maxExp;
-        var winrate = Math.round((num / max) * 10000) / 100;
-        if (winrate > 100) winrate = 100;
-        if (winrate < 1) winrate = 1;
-        var levelComps = {
-            expbody: (function () {
-                var expbody = ui.create.div('.taixuhuanjing_StateHomeExpBody');
-                var attributeBody5Imp = ui.create.div('.taixuhuanjing_StateHomeExpBodyImp', expbody);
-                attributeBody5Imp.style.width = `${winrate}%`;
-                return expbody;
-            })(),
-            title: (function () {
-                var title = ui.create.div('.taixuhuanjing_StateHomelevelTitle', '等级' + lib.config.taixuhuanjing.level);
-                return title;
-            })(),
-        };
-        for (var i in levelComps) {
-            levelBody.appendChild(levelComps[i]);
-        }
-        if (type == null) {
-            var addExp = ui.create.div('.taixuhuanjing_StateHomeAddExp', '经验+0', homeBody);
-            var title = ui.create.div('.taixuhuanjing_StateHomeSpoilsTitle', '获得战利品', spoilsBody);
-            return;
-        }//挑战失败直接重开
-        var addExp = ui.create.div('.taixuhuanjing_StateHomeAddExp', '经验+' + evtid.exp, homeBody);
-        homeBody.update = function (list) {
-            spoilsBody.innerHTML = '';
-            var spoilsComps = {
-                title: (function () {
-                    var title = ui.create.div('.taixuhuanjing_StateHomeSpoilsTitle', '获得战利品');
-                    return title;
-                })(),
-                spoilsBox: (function () {
-                    var spoilsBox = ui.create.div('.taixuhuanjing_StateHomeSpoilsBox');
-                    function func(spoil) {
-                        var div = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDiv');
-                        var divImp = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivImp', div);
-                        if (spoil.name != 'skill' && spoil.name != 'card' && spoil.name != 'equip' && spoil.name != 'buff') {
-                            if (spoil.name == 'randomSkill' || spoil.name == 'randomCard' || spoil.name == 'randomEquip' || spoil.name == 'randomBuff') {
-                                divImp.setBackgroundImage('extension/太虚幻境/image/icon/random.png');
-                            } else {
-                                divImp.setBackgroundImage(`extension/太虚幻境/image/icon/${spoil.name}.png`);
-                            }
-                            var name = game.effectPack[spoil.name].name;
-                            var num1 = spoil.number;
-                            var divName = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivName', name + '+' + num1, div);
-                        } else if (spoil.name == 'skill') {
-                            var name = get.translation(spoil.result);
-                            var divImp3 = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivImp3', divImp);
-                            var divName3 = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivName3', `${name}`, divImp3);
-                        } else if (spoil.name == 'card') {
-                            var divImp2 = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivImp2', divImp);
-                            var cardImp = function (card) {
-                                if (lib.card[card].fullimage || lib.card[card].fullborder) {
-                                    divImp2.style.height = '120%';
-                                }
-                                var src = lib.card[card].image;
-                                if (src) {
-                                    if (src.indexOf('ext:') == 0) {
-                                        src = src.replace(/ext:/, 'extension/');
-                                    }
-                                    divImp2.setBackgroundImage(src);
-                                } else {
-                                    var img = new Image();
-                                    img.src = `image/card/${card}.png`;
-                                    img.onload = function () {
-                                        divImp2.setBackgroundImage(`image/card/${card}.png`);
-                                    };
-                                    img.onerror = function () {
-                                        divImp2.setBackgroundImage(`image/card/${card}.png`);
-                                        if (card == 'yuheng_plus' || card == 'yuheng_pro') {
-                                            divImp2.setBackgroundImage('image/card/yuheng.png');
-                                        }
-                                    };
-                                }
-                            };
-                            cardImp(spoil.result);
-                            var name = get.translation(spoil.result);
-                            var divName = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivName', `${name}`, div);
-                        } else if (spoil.name == 'equip') {
-                            var divImp2 = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivImp2', divImp);
-                            var cardImp = function (card) {
-                                if (lib.card[card].fullimage || lib.card[card].fullborder) {
-                                    divImp2.style.height = '120%';
-                                }
-                                var src = lib.card[card].image;
-                                if (src) {
-                                    if (src.indexOf('ext:') == 0) {
-                                        src = src.replace(/ext:/, 'extension/');
-                                    }
-                                    divImp2.setBackgroundImage(src);
-                                } else {
-                                    var img = new Image();
-                                    img.src = `image/card/${card}.png`;
-                                    img.onload = function () {
-                                        divImp2.setBackgroundImage(`image/card/${card}.png`);
-                                    };
-                                    img.onerror = function () {
-                                        divImp2.setBackgroundImage(`image/card/${card}.png`);
-                                        if (card == 'yuheng_plus' || card == 'yuheng_pro') {
-                                            divImp2.setBackgroundImage('image/card/yuheng.png');
-                                        }
-                                    };
-                                }
-                            };
-                            cardImp(spoil.result);
-                            var name = get.translation(spoil.result);
-                            var divName = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivName', `${name}`, div);
-                        } else if (spoil.name == 'buff') {
-                            divImp.setBackgroundImage(`extension/太虚幻境/image/buff/${spoil.result}.png`);
-                            var name = game.buffPack[spoil.result].name;
-                            var info = game.buffPack[spoil.result].info;
-                            var divName = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivName', `${name}`, div);
-                        }
-                        return div;
-                    }
-                    const list2 = [];
-                    for (const i of list) {
-                        game.eventResult(i);//QQQ
-                        if (i.effect.length) {
-                            for (const j of i.effect) {
-                                list2.push(j);
-                            }
-                        }
-                    }
-                    for (const i of list2) {
-                        spoilsBox.appendChild(func(i));
-                    }
-                    return spoilsBox;
-                })(),
-            };
-            for (var i in spoilsComps) {
-                spoilsBody.appendChild(spoilsComps[i]);
-            }
-        };
-        if (num >= max) {
-            const list = [
-                {
-                    name: '技能',
-                    type: 'randomSkill',
-                    info: '获得技能',
-                    num: 1,
-                    show_priority: 8,
-                },
-                {
-                    name: '卡牌',
-                    type: 'randomCard',
-                    info: '获得卡牌',
-                    num: 1,
-                    show_priority: 1,
-                },
-                {
-                    name: '装备',
-                    type: 'randomEquip',
-                    info: '获得装备',
-                    num: 1,
-                    show_priority: 2,
-                },
-                {
-                    name: '调度次数',
-                    type: 'adjust',
-                    info: '调度次数+1',
-                    num: 1,
-                    show_priority: 3,
-                },
-                {
-                    name: '体力上限',
-                    type: 'maxHp',
-                    info: '体力上限',
-                    num: 1,
-                    show_priority: 4,
-                },
-                {
-                    name: '初始手牌',
-                    type: 'minHs',
-                    info: '初始手牌+1',
-                    num: 1,
-                    show_priority: 5,
-                },
-                {
-                    name: '手牌上限',
-                    type: 'maxHs',
-                    info: '手牌上限+2',
-                    num: 2,
-                    show_priority: 6,
-                },
-                {
-                    name: '金币',
-                    type: 'coin',
-                    info: '金币+300',
-                    num: 300,
-                    show_priority: 7,
-                },
-                {
-                    name: '祝福',
-                    type: 'randomBuff',
-                    info: '获得祝福',
-                    num: 1,
-                    show_priority: 9,
-                },
-            ].randomGets(4);
-            list.sort(function (a, b) {
-                return a.showpriority - b.showpriority;
-            });
-            game.levelUp('等级提升', list, type, homeBody);
-            num -= max;
-            lib.config.taixuhuanjing.level += 1;
-            lib.config.taixuhuanjing.maxExp = 100 + lib.config.taixuhuanjing.level * 10;
-            game.messagePopup(`等级提升至${get.cnNumber(lib.config.taixuhuanjing.level, true)}级`);
-        }//升级
-        lib.config.taixuhuanjing.exp = num;
-        if (type == true) {
-            const list = [];
-            for (const i of evtid.spoils) {
-                if (Math.random() <= i.random) {
-                    list.push(i);
-                }
-            }
-            for (const i of evtid.enemy) {
-                if (i.spoils?.length) {
-                    for (const j of i.spoils) {
-                        if (Math.random() <= j.random) {
-                            list.push(j);
-                        }
-                    }
-                }
-            }
-            if (lib.config.taixuhuanjing.buff.includes('txhj_aHaoSkill1')) {
-                list.push({
-                    result: true,
-                    name: '随机装备',
-                    effect: [{ name: 'randomEquip', number: 1 }],
-                    random: 1,
-                });
-            }
-            if (lib.config.taixuhuanjing.buff.includes('buff_txhj_mizhixianren')) {
-                list.push({
-                    result: true,
-                    name: '随机技能',
-                    effect: [{ name: 'randomSkill', number: 1 }],
-                    random: 1,
-                });
-            }
-            if (lib.config.taixuhuanjing.buff.includes('buff_txhj_ligunligunli')) {
-                var numlx = Math.floor(lib.config.taixuhuanjing.coin / 10);
-                list.push({
-                    result: true,
-                    name: '利息',
-                    effect: [{ name: 'coin', number: numlx }],
-                });
-            }
-            homeBody.update(list);
-        }
-        lib.config.taixuhuanjing.events.push(_status.TaiXuHuanJingGame.event);
-        if (evtid.type == 'boss') {
-            if (typeof chapter == 'number' && game.seasonPack[season][`${chapter}IF`]) {
-                var premise = game.seasonPack[season][`${chapter}IF`].premise.slice(0);
-                var result = premise.length;
-                for (var i = 0; i < premise.length; i++) {
-                    for (var e = 0; e < lib.config.taixuhuanjing.events.length; e++) {
-                        if (lib.config.taixuhuanjing.events[e].id == premise[i]) {
-                            result--;
-                        }
-                    }
-                }
-                if (result == 0) {
-                    lib.config.taixuhuanjing.chapter = chapter + 'IF';
-                } else {
-                    lib.config.taixuhuanjing.chapter++;
-                }
-            } else if (typeof chapter == 'string' && chapter.indexOf('IF') != -1) {
-                lib.config.taixuhuanjing.chapter = 1 + parseInt(chapter.split('IF')[0]);
-            } else {
-                lib.config.taixuhuanjing.chapter++;
-            }
-            delete lib.config.taixuhuanjing.store;
-            lib.config.taixuhuanjing.procedure = null;
-            lib.config.taixuhuanjing.optional1 = null;
-            lib.config.taixuhuanjing.optional2 = null;
-            lib.config.taixuhuanjing.optional3 = null;
-            lib.config.taixuhuanjing.optionalExam = [];
-        }
-        if (lib.config.taixuhuanjing.optional1 != null && lib.config.taixuhuanjing.optional1.id == id) {
-            lib.config.taixuhuanjing.optional1 = null;
-        } else if (lib.config.taixuhuanjing.optional2 != null && lib.config.taixuhuanjing.optional2.id == id) {
-            lib.config.taixuhuanjing.optional2 = null;
-        } else if (lib.config.taixuhuanjing.optional3 != null && lib.config.taixuhuanjing.optional3.id == id) {
-            lib.config.taixuhuanjing.optional3 = null;
-        }
-        if (_status.zhoumu) {
-            delete _status.zhoumu;
-            lib.config.taixuhuanjing.gameplus++;
-            lib.config.taixuhuanjing.maxSkills++;
-            if (lib.config.mode_config.taixuhuanjing.plusSeasonChange == '1') {
-                const zhoumu = ['ChongYingChuLin', 'HuangTianZhiNu', 'HeJinZhuHuan', 'MGBaWangZhengCheng', 'GFHuangJinZhiLuan', 'GFChangBanZhiZhan', 'GFChiBiZhiZhan', 'GFQiQinMengHuo', 'LiGuoZhiLuan', 'ShiChangShiZhiLuan', 'QianLiZouDanJi', 'MGGuanDuZhiZhan', 'NSHeZhongKangQin', 'HaiWaiFenghe', 'YcFuQinYiZhou', 'PveKuibaSkMitan'];
-                lib.config.taixuhuanjing.season = zhoumu.randomGet();
-            }
-            else if (lib.config.mode_config.taixuhuanjing.plusSeasonChange != '0') {
-                lib.config.taixuhuanjing.season = lib.config.mode_config.taixuhuanjing.plusSeasonChange;
-            }
-            lib.config.taixuhuanjing.chapter = 0;
-            delete lib.config.taixuhuanjing.store;
-            lib.config.taixuhuanjing.procedure = null;
-            lib.config.taixuhuanjing.optional1 = null;
-            lib.config.taixuhuanjing.optional2 = null;
-            lib.config.taixuhuanjing.optional3 = null;
-            lib.config.taixuhuanjing.optionalExam = [];
-        }
-        game.saveConfig('taixuhuanjing', lib.config.taixuhuanjing);
-    }; //战绩结算页面
     game.sort = function () {
         const players = game.players.filter(Boolean);
         const deads = game.dead.filter(Boolean);
@@ -7008,7 +5989,215 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         });//修改previousSeat
         game.players.sort((a, b) => Number(a.dataset.position) - Number(b.dataset.position));
         return true;
-    };
+    };//排序
+    game.taixuhuanjingHome = function () {
+        var home = ui.create.div('.taixuhuanjing_Home');
+        document.body.appendChild(home);
+        var homeBody = ui.create.div('.taixuhuanjing_HomeBody', home);
+        var homeButtonMenu = ui.create.div('.taixuhuanjing_consoledeskHomeButtonMenu', homeBody);
+        homeButtonMenu.onclick = function () {
+            if (!ui.click.configMenu) return;
+            ui.click.configMenu();
+            return false;
+        }; //QQQ返回按钮
+        var setTaiXuHomeSize = function () {
+            var screenWidth = ui.window.offsetWidth;
+            var screenHeight = ui.window.offsetHeight;
+            var whr = 2.05;
+            var width;
+            var height;
+            if (screenWidth / whr > screenHeight) {
+                height = screenHeight;
+                width = height * whr;
+            } else {
+                width = screenWidth;
+                height = screenWidth / whr;
+            }
+            homeBody.style.height = Math.round(height) + 'px';
+            homeBody.style.width = Math.round(width) + 'px';
+            homeBody.style.transform = 'translate(-50%,-50%) scale(0.9)';
+        };
+        setTaiXuHomeSize();
+        var reTaiXuHomesize = function () {
+            setTimeout(setTaiXuHomeSize, 500);
+        };
+        lib.onresize.push(reTaiXuHomesize);
+        var body = ui.create.div('.taixuhuanjing_HomeBodyBackground1', homeBody);
+        var season = lib.config.taixuhuanjing.season;
+        body.setBackgroundImage(`extension/太虚幻境/dlc/${season}/bg_${season}.jpg`);
+        var Text = ui.create.div('.taixuhuanjing_HomeBodyText', homeBody);
+        var updatetext = function () {
+            setTimeout(function () {
+                if (!game.seasonPack || !game.seasonPack[lib.config.taixuhuanjing.season]) {
+                    updatetext();
+                    return;
+                }
+                Text.innerHTML = game.seasonPack[lib.config.taixuhuanjing.season].info.randomGet();
+            }, 1000);
+        };
+        updatetext();
+        var seasonName = ui.create.div('.taixuhuanjing_HomeBodySeasonName', homeBody);
+        seasonName.setBackgroundImage(`extension/太虚幻境/dlc/${season}/title_${season}.png`); //QQQ
+        body.update = function () {
+            var season = lib.config.taixuhuanjing.season;
+            body.setBackgroundImage(`extension/太虚幻境/dlc/${season}/bg_${season}.jpg`);
+            seasonName.setBackgroundImage(`extension/太虚幻境/dlc/${season}/title_${season}.png`);
+            Text.innerHTML = game.seasonPack[season].info.randomGet();
+        };
+        seasonName.listen(function (e) {
+            if (lib.config.taixuhuanjing && lib.config.taixuhuanjing.name != null) {
+                game.messagePopup('请完成当前挑战');
+                return;
+            }
+            game.updateModeData();
+            home.replacePlayer();
+            var seasonPack = ['ChongYingChuLin', 'HuangTianZhiNu', 'HeJinZhuHuan', 'MGBaWangZhengCheng', 'GFHuangJinZhiLuan', 'GFChangBanZhiZhan', 'GFChiBiZhiZhan', 'GFQiQinMengHuo', 'LiGuoZhiLuan', 'ShiChangShiZhiLuan', 'QianLiZouDanJi', 'MGGuanDuZhiZhan', 'NSHeZhongKangQin', 'HaiWaiFenghe', 'YcFuQinYiZhou', 'PveKuibaSkMitan'];
+            var num = 0;
+            for (var i = 0; i < seasonPack.length; i++) {
+                if (lib.config.taixuhuanjing.season == seasonPack[i]) {
+                    num = i;
+                    break;
+                }
+            }
+            if (num + 1 == seasonPack.length) {
+                lib.config.taixuhuanjing.season = seasonPack[0];
+            } else {
+                lib.config.taixuhuanjing.season = seasonPack[num + 1];
+            }
+            if (!lib.config.taixuhuanjingNode || lib.config.taixuhuanjingNode[lib.config.taixuhuanjing.season] == undefined) {
+                lib.config.taixuhuanjing.rank = 1;
+            } else if (lib.config.taixuhuanjingNode[lib.config.taixuhuanjing.season] && lib.config.taixuhuanjingNode[lib.config.taixuhuanjing.season].rank) {
+                lib.config.taixuhuanjing.rank = lib.config.taixuhuanjingNode[lib.config.taixuhuanjing.season].rank;
+            }
+            body.update();
+            game.messagePopup(lib.translate[`txhj_${lib.config.taixuhuanjing.season}`] + '赛季');
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        });
+        var rule = ui.create.div('.taixuhuanjing_HomeBodySeasonRule', seasonName);
+        var ruleBox = ui.create.div('.taixuhuanjing_HomeBodySeasonBox', homeBody);
+        var ruleShadow = ui.create.div('.taixuhuanjing_HomeBodySeasonTitleShadow', '太虚幻境通關指南', ruleBox);
+        var ruleTitle = ui.create.div('.taixuhuanjing_HomeBodySeasonTitle', '太虚幻境通關指南', ruleBox);
+        var ruleText = ui.create.div('.taixuhuanjing_HomeBodySeasonText', txhj.rule + '', ruleBox);
+        lib.setScroll(ruleText);
+        ruleBox.listen(function (e) {
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        });
+        rule.listen(function (e) {
+            game.txhj_playAudioCall('WinButton', null, true);
+            ruleBox.style.display = 'block';
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        });
+        homeBody.listen(function (e) {
+            ruleBox.style.display = 'none';
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        });
+        var tujianButton = ui.create.div('.taixuhuanjing_HomeBodyTuJianButton', homeBody).listen(function (e) {
+            game.txhj_playAudioCall('WinButton', null, true);
+            game.collectHome();
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        });
+        var jiluButton = ui.create.div('.taixuhuanjing_HomeBodyJiLuButton', homeBody).listen(function (e) {
+            game.txhj_playAudioCall('WinButton', null, true);
+            game.txhjRecordHome();
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        });
+        var newJourne = ui.create.div('.taixuhuanjing_HomeBodyNewJourney', homeBody);
+        newJourne.listen(function (e) {
+            game.txhj_playAudioCall('WinButton', null, true);
+            ruleBox.style.display = 'none';
+            if (lib.config.taixuhuanjing == undefined) {
+                game.updateModeData();
+                home.replacePlayer();
+            } else if (lib.config.taixuhuanjing.name != null) {
+                var src = '是否删除当前挑战的进度?';
+                var d = confirm(src);
+                if (d == true) {
+                    game.updateModeData();
+                    home.replacePlayer();
+                }
+                return;
+            }
+            home.delete();
+            lib.onresize.remove(reTaiXuHomesize);
+            game.chooseCharacter();
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        });
+        var oldJourne = ui.create.div('.taixuhuanjing_HomeBodyOldJourney', homeBody);
+        oldJourne.listen(function (e) {
+            game.txhj_playAudioCall('WinButton', null, true);
+            ruleBox.style.display = 'none';
+            if (lib.config.taixuhuanjing == undefined) {
+                game.updateModeData();
+            }
+            if (lib.config.taixuhuanjing.name == null || lib.config.taixuhuanjing.servant == null) {
+                game.messagePopup('无相关进度');
+                return;
+            }
+            _status.choiceCharacter = lib.config.taixuhuanjing.name;
+            game.transitionAnimation();
+            setTimeout(function () {
+                home.delete();
+                lib.onresize.remove(reTaiXuHomesize);
+                game.consoledesk();
+            }, 1000);
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        });
+        var point = ui.create.div('.taixuhuanjing_HomeBodyPoint', homeBody);
+        point.listen(function (e) {
+            game.txhj_playAudioCall('WinButton', null, true);
+            ruleBox.style.display = 'none';
+            if (lib.config.taixuhuanjing == undefined) {
+                game.updateModeData();
+            }
+            if (lib.config.taixuhuanjing && lib.config.taixuhuanjing.name != null) {
+                game.messagePopup('请完成当前挑战');
+                return;
+            }
+            game.choiceCharacter(home);
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        });
+        home.replacePlayer = function (value) {
+            point.innerHTML = '';
+            if (value) {
+                if (!_status.choiceCharacter) return;
+                var name = _status.choiceCharacter;
+                lib.config.taixuhuanjing.point = name;
+                game.saveConfig('taixuhuanjing', lib.config.taixuhuanjing);
+                point.innerHTML = '';
+                var playImp1 = ui.create.div('.taixuhuanjing_HomeBodyPointImp1', point);
+                var playImp2 = ui.create.div('.taixuhuanjing_HomeBodyPointImp2', playImp1);
+                playImp2.setBackground(name, 'character');
+                var nameText = ui.create.div('.taixuhuanjing_HomeBodyPointText', `${lib.translate[name]}`, point);
+            } else {
+                if (!lib.config.taixuhuanjing || lib.config.taixuhuanjing.point == null) return;
+                point.innerHTML = '';
+                var name = lib.config.taixuhuanjing.point;
+                var playImp1 = ui.create.div('.taixuhuanjing_HomeBodyPointImp1', point);
+                var playImp2 = ui.create.div('.taixuhuanjing_HomeBodyPointImp2', playImp1);
+                playImp2.setBackground(name, 'character');
+                var nameText = ui.create.div('.taixuhuanjing_HomeBodyPointText', `${lib.translate[name]}`, point);
+            }
+        };
+        home.replacePlayer();
+    };//初始界面
     game.consoledesk = function () {
         if (!lib.config.taixuhuanjing.season || !game.seasonPack[lib.config.taixuhuanjing.season]) {
             lib.config.taixuhuanjing.season = 'HuangTianZhiNu';
@@ -8211,7 +7400,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 game.txhj_playAudioCall('Win', null, true);
             }
         }
-    };
+    };// 大厅页面
     game.chooseCharacterTaiXuHuanJing = async function () {
         ui.auto.show();
         delete _status.roundStart;
@@ -8299,7 +7488,818 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         taixu.zhongzhi = false;
         taixu.phaseLoop = game.phaseLoop(game.zhu);
         await taixu.phaseLoop;
-    };
+    };//进入关卡开始战斗
+    game.TaiXuHuanJingState = function (type) {
+        taixu.zhongzhi = true;
+        taixu.gameDraw.finish();
+        taixu.phaseLoop.finish();
+        const players = game.players.concat(game.dead);
+        for (const i of players) {
+            game.removePlayer(i);
+        }
+        ui.me.remove();
+        ui.mebg.remove();
+        ui.handcards1Container.remove();
+        ui.handcards2Container.remove();
+        for (const i of Array.from(ui.arena.childNodes)) {
+            if (i.classList.contains('center')) {
+                i.remove();
+            }
+        } //清空中央区卡牌
+        _status.modeNode.score.round += game.roundNumber;
+        _status.modeNode.score.fight += 1;
+        lib.config.taixuhuanjing = _status.modeNode;
+        ui.arenalog.innerHTML = ''; /*清除历史记录*/
+        ui.historybar.innerHTML = ''; /*清除出牌记录*/
+        ui.cardPile.innerHTML = '';
+        ui.discardPile.innerHTML = '';
+        ui.sidebar.innerHTML = ''; /*清除暂停记录*/
+        ui.sidebar3.innerHTML = ''; /*清除暂停记录*/
+        const rank = lib.config.taixuhuanjing.rank;
+        const season = lib.config.taixuhuanjing.season || _status.TaiXuHuanJingGame.season;
+        const chapter = _status.TaiXuHuanJingGame.chapter;
+        let num = lib.config.taixuhuanjing.exp;
+        const id = _status.TaiXuHuanJingGame.event.id;
+        const evtid = game.eventPack[season][chapter][id];
+        if (lib.config.taixuhuanjing.buff.includes('buff_txhj_aozhan')) {
+            if (game.me.hp > 0) {
+                lib.config.taixuhuanjing.hp = game.me.hp;
+                lib.config.taixuhuanjing.maxHp = game.me.maxHp;
+            } else {
+                lib.config.taixuhuanjing.hp = 1;
+                lib.config.taixuhuanjing.maxHp = game.me.maxHp;
+            }
+        } else {
+            if (type != null && lib.config.taixuhuanjing.buff.includes('buff_txhj_xianhujiqu')) {
+                if (game.me.maxHp > lib.config.taixuhuanjing.maxHp) {
+                    lib.config.taixuhuanjing.maxHp += game.me.maxHp - lib.config.taixuhuanjing.maxHp;
+                }
+            }
+            lib.config.taixuhuanjing.hp = lib.config.taixuhuanjing.maxHp;
+        }
+        lib.config.taixuhuanjing.buff = _status.modeBuff.slice(0);
+        lib.config.taixuhuanjing.useSkills = _status.modeSkill.slice(0);
+        delete _status.modeNode;
+        delete _status.modeBuff;
+        delete _status.modeSkill;
+        var str2 = '普通';
+        if (rank == 2) {
+            str2 = '困难';
+        } else if (rank == 3) {
+            str2 = '噩梦';
+        } else if (rank == 4) {
+            str2 = '炼狱';
+        } else if (rank == 5) {
+            str2 = '血战';
+        }
+        if (type == true && evtid.type == 'Ultimate') {
+            if (!lib.config.mode_config.taixuhuanjing.zhoumu) {
+                if (typeof chapter == 'string' && chapter.indexOf('IF') != -1) {
+                    if (!lib.config.taixuhuanjingRecord) lib.config.taixuhuanjingRecord = {};
+                    var timeID = new Date().getTime();
+                    lib.config.taixuhuanjing.time = timeID;
+                    if (!lib.config.taixuhuanjingRecord) lib.config.taixuhuanjingRecord = {};
+                    lib.config.taixuhuanjingRecord[timeID] = lib.config.taixuhuanjing;
+                    game.saveConfig('taixuhuanjingRecord', lib.config.taixuhuanjingRecord);
+                    _status.TaiXuHuanJingGame.return = true;
+                }
+                if (typeof chapter == 'number' && game.seasonPack[season][`${chapter}IF`]) {
+                    var premise = game.seasonPack[season][`${chapter}IF`].premise.slice(0);
+                    var result = premise.length;
+                    for (var i = 0; i < premise.length; i++) {
+                        for (var e = 0; e < lib.config.taixuhuanjing.events.length; e++) {
+                            if (lib.config.taixuhuanjing.events[e].id == premise[i]) {
+                                result--;
+                            }
+                        }
+                    }
+                    if (result == 0) {
+                        var src = `恭喜您已通过:【${game.seasonPack[season].name}】(${str2})赛季试炼,` + '是否继续体验隐藏内容?';
+                        var d = confirm(src);
+                        if (d == true) {
+                            lib.config.taixuhuanjing.chapter = chapter + 'IF';
+                            delete lib.config.taixuhuanjing.store;
+                            lib.config.taixuhuanjing.procedure = null;
+                            lib.config.taixuhuanjing.optional1 = null;
+                            lib.config.taixuhuanjing.optional2 = null;
+                            lib.config.taixuhuanjing.optional3 = null;
+                            lib.config.taixuhuanjing.optionalExam = [];
+                            if (lib.config.taixuhuanjingNode[season] && lib.config.taixuhuanjingNode[season].rank && rank >= lib.config.taixuhuanjingNode[season].rank) {
+                                lib.config.taixuhuanjingNode[season].rank++;
+                                if (lib.config.taixuhuanjingNode[season].rank > 5) lib.config.taixuhuanjingNode[season].rank = 5;
+                                if (lib.config.taixuhuanjingNode[season].reach && lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]) {
+                                    lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]++;
+                                } else {
+                                    if (!lib.config.taixuhuanjingNode[season].reach) lib.config.taixuhuanjingNode[season].reach = {};
+                                    lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
+                                }
+                            } else {
+                                lib.config.taixuhuanjingNode[season] = {
+                                    rank: 2,
+                                    reach: {},
+                                };
+                                lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
+                            }
+                            lib.config.taixuhuanjingNode.reach[lib.config.taixuhuanjing.name] = 1;
+                            game.saveConfig('taixuhuanjingNode', lib.config.taixuhuanjingNode);
+                        } else {
+                            if (lib.config.taixuhuanjingNode[season] && lib.config.taixuhuanjingNode[season].rank && rank >= lib.config.taixuhuanjingNode[season].rank) {
+                                lib.config.taixuhuanjingNode[season].rank++;
+                                if (lib.config.taixuhuanjingNode[season].rank > 5) lib.config.taixuhuanjingNode[season].rank = 5;
+                                if (lib.config.taixuhuanjingNode[season].reach && lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]) {
+                                    lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]++;
+                                } else {
+                                    if (!lib.config.taixuhuanjingNode[season].reach) lib.config.taixuhuanjingNode[season].reach = {};
+                                    lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
+                                }
+                            } else {
+                                lib.config.taixuhuanjingNode[season] = {
+                                    rank: 2,
+                                    reach: {},
+                                };
+                                lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
+                            }
+                            game.saveConfig('taixuhuanjingNode', lib.config.taixuhuanjingNode);
+                            var timeID = new Date().getTime();
+                            lib.config.taixuhuanjing.time = timeID;
+                            if (!lib.config.taixuhuanjingRecord) lib.config.taixuhuanjingRecord = {};
+                            lib.config.taixuhuanjingRecord[timeID] = lib.config.taixuhuanjing;
+                            game.saveConfig('taixuhuanjingRecord', lib.config.taixuhuanjingRecord);
+                            _status.TaiXuHuanJingGame.return = true;
+                        }
+                    }
+                } else {
+                    //alert(`恭喜您已通过:【${game.seasonPack[season].name}】(${str2})赛季试炼`);
+                    if (lib.config.taixuhuanjingNode[season] && lib.config.taixuhuanjingNode[season].rank && rank >= lib.config.taixuhuanjingNode[season].rank) {
+                        lib.config.taixuhuanjingNode[season].rank++;
+                        if (lib.config.taixuhuanjingNode[season].rank > 5) lib.config.taixuhuanjingNode[season].rank = 5;
+                        if (lib.config.taixuhuanjingNode[season].reach && lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]) {
+                            lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name]++;
+                        } else {
+                            if (!lib.config.taixuhuanjingNode[season].reach) lib.config.taixuhuanjingNode[season].reach = {};
+                            lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
+                        }
+                    } else {
+                        lib.config.taixuhuanjingNode[season] = {
+                            rank: 2,
+                            reach: {},
+                        };
+                        lib.config.taixuhuanjingNode[season].reach[lib.config.taixuhuanjing.name] = 1;
+                    }
+                    game.saveConfig('taixuhuanjingNode', lib.config.taixuhuanjingNode);
+                    var timeID = new Date().getTime();
+                    lib.config.taixuhuanjing.time = timeID;
+                    if (!lib.config.taixuhuanjingRecord) lib.config.taixuhuanjingRecord = {};
+                    lib.config.taixuhuanjingRecord[timeID] = lib.config.taixuhuanjing;
+                    game.saveConfig('taixuhuanjingRecord', lib.config.taixuhuanjingRecord);
+                    _status.TaiXuHuanJingGame.return = true;
+                }
+            } else {
+                _status.zhoumu = true;
+            }//换周目时候改了这些东西导致找不到对应game.eventPack
+        }
+        var home = ui.create.div('.taixuhuanjing_StateHome');
+        home.oncontextmenu = function (e) {
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        };
+        document.body.appendChild(home);
+        const homeBody = ui.create.div('.taixuhuanjing_StateHomeBody', home);
+        var setStateSize = function () {
+            var screenWidth = ui.window.offsetWidth;
+            var screenHeight = ui.window.offsetHeight;
+            var whr = 2.0;
+            var width;
+            var height;
+            if (screenWidth / whr > screenHeight) {
+                height = screenHeight;
+                width = height * whr;
+            } else {
+                width = screenWidth;
+                height = screenWidth / whr;
+            }
+            homeBody.style.height = Math.round(height) + 'px';
+            homeBody.style.width = Math.round(width) + 'px';
+            homeBody.style.transform = 'translate(-50%,-50%) scale(0.9)';
+        };
+        setStateSize();
+        var reStatesize = function () {
+            setTimeout(setStateSize, 500);
+        };
+        lib.onresize.push(reStatesize);
+        var gameIcon = ui.create.div('.taixuhuanjing_StateHomeGameIcon', homeBody);
+        var gameText = ui.create.div('.taixuhuanjing_StateHomeGameText', gameIcon);
+        var gameInfo = ui.create.div('.taixuhuanjing_StateHomeGameInfo', gameIcon);
+        var okButton = ui.create.div('.taixuhuanjing_StateHomeOkButton', homeBody);
+        var okText = ui.create.div('.taixuhuanjing_StateHomeOkText', okButton);
+        okButton.listen(function (e) {
+            game.txhj_playAudioCall('off', null, true);
+            setTimeout(function () {
+                home.delete();
+                lib.onresize.remove(reStatesize);
+            }, 500);
+            game.transitionAnimation();
+            setTimeout(function () {
+                game.consoledesk();
+            }, 1000); //战绩结算之后返回大厅
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        }); //点击继续下一局
+        if (type == null) {
+            gameIcon.setBackgroundImage('extension/太虚幻境/image/style/game_false_icon.png');
+            gameText.setBackgroundImage('extension/太虚幻境/image/style/game_false_text.png');
+            game.txhj_playAudioCall('Loss', null, true);
+            var timeID = new Date().getTime();
+            lib.config.taixuhuanjing.time = timeID;
+            if (!lib.config.taixuhuanjingRecord) {
+                lib.config.taixuhuanjingRecord = {};
+            }
+            lib.config.taixuhuanjingRecord[timeID] = lib.config.taixuhuanjing;
+            game.saveConfig('taixuhuanjingRecord', lib.config.taixuhuanjingRecord);
+            _status.TaiXuHuanJingGame.return = false;
+        } else if (type == false) {
+            gameIcon.setBackgroundImage('extension/太虚幻境/image/style/game_loss_icon.png');
+            gameText.setBackgroundImage('extension/太虚幻境/image/style/game_loss_text.png');
+            game.txhj_playAudioCall('Loss', null, true);
+        } else {
+            game.txhj_playAudioCall('Win', null, true);
+        }
+        //上一局最后用的牌和敌人死后弃牌会在下一局时显示的bug
+        if (ui.thrown && ui.thrown.length) {
+            for (var i = 0; i < ui.thrown.length; i++) {
+                ui.thrown[i].remove();
+            }
+        }
+        //不知道会不会出其他bug
+        if (lib.skill._changeJudges) {
+            let ss = document.querySelector('.skill-control');
+            ss.removeChild(game.me.node.judges);
+        }
+        //
+        ui.clear();
+        ui.mebg.remove();
+        ui.me.remove();
+        ui.handcards1Container.remove();
+        ui.handcards2Container.remove();
+        if (window.dui) {
+            ui.equipSolts.remove();
+        }
+        function clearSLBuff() {
+            var buffDesc = document.querySelectorAll('.SLBuffDesc');
+            if (buffDesc.length) {
+                for (const ele of buffDesc) {
+                    ele.parentNode.removeChild(ele);
+                }
+            }
+            var ssui = document.getElementsByClassName('skill-control');
+            var buffs = ssui.length ? document.querySelectorAll('.playerbuffstyle2') : document.querySelectorAll('.playerbuffstyle3');
+            if (buffs.length) {
+                for (const buff of buffs) {
+                    buff.parentNode.removeChild(buff);
+                }
+            }
+        }
+        clearSLBuff();
+        delete game.me.buff;
+        var levelBody = ui.create.div('.taixuhuanjing_StateHomelevelBody', homeBody);
+        var spoilsBody = ui.create.div('.taixuhuanjing_StateHomeSpoilsBody', homeBody);
+        if (type != null) {
+            num += evtid.exp;
+        }
+        const max = lib.config.taixuhuanjing.maxExp;
+        var winrate = Math.round((num / max) * 10000) / 100;
+        if (winrate > 100) winrate = 100;
+        if (winrate < 1) winrate = 1;
+        var levelComps = {
+            expbody: (function () {
+                var expbody = ui.create.div('.taixuhuanjing_StateHomeExpBody');
+                var attributeBody5Imp = ui.create.div('.taixuhuanjing_StateHomeExpBodyImp', expbody);
+                attributeBody5Imp.style.width = `${winrate}%`;
+                return expbody;
+            })(),
+            title: (function () {
+                var title = ui.create.div('.taixuhuanjing_StateHomelevelTitle', '等级' + lib.config.taixuhuanjing.level);
+                return title;
+            })(),
+        };
+        for (var i in levelComps) {
+            levelBody.appendChild(levelComps[i]);
+        }
+        if (type == null) {
+            var addExp = ui.create.div('.taixuhuanjing_StateHomeAddExp', '经验+0', homeBody);
+            var title = ui.create.div('.taixuhuanjing_StateHomeSpoilsTitle', '获得战利品', spoilsBody);
+            return;
+        }//挑战失败直接重开
+        var addExp = ui.create.div('.taixuhuanjing_StateHomeAddExp', '经验+' + evtid.exp, homeBody);
+        homeBody.update = function (list) {
+            spoilsBody.innerHTML = '';
+            var spoilsComps = {
+                title: (function () {
+                    var title = ui.create.div('.taixuhuanjing_StateHomeSpoilsTitle', '获得战利品');
+                    return title;
+                })(),
+                spoilsBox: (function () {
+                    var spoilsBox = ui.create.div('.taixuhuanjing_StateHomeSpoilsBox');
+                    function func(spoil) {
+                        var div = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDiv');
+                        var divImp = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivImp', div);
+                        if (spoil.name != 'skill' && spoil.name != 'card' && spoil.name != 'equip' && spoil.name != 'buff') {
+                            if (spoil.name == 'randomSkill' || spoil.name == 'randomCard' || spoil.name == 'randomEquip' || spoil.name == 'randomBuff') {
+                                divImp.setBackgroundImage('extension/太虚幻境/image/icon/random.png');
+                            } else {
+                                divImp.setBackgroundImage(`extension/太虚幻境/image/icon/${spoil.name}.png`);
+                            }
+                            var name = game.effectPack[spoil.name].name;
+                            var num1 = spoil.number;
+                            var divName = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivName', name + '+' + num1, div);
+                        } else if (spoil.name == 'skill') {
+                            var name = get.translation(spoil.result);
+                            var divImp3 = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivImp3', divImp);
+                            var divName3 = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivName3', `${name}`, divImp3);
+                        } else if (spoil.name == 'card') {
+                            var divImp2 = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivImp2', divImp);
+                            var cardImp = function (card) {
+                                if (lib.card[card].fullimage || lib.card[card].fullborder) {
+                                    divImp2.style.height = '120%';
+                                }
+                                var src = lib.card[card].image;
+                                if (src) {
+                                    if (src.indexOf('ext:') == 0) {
+                                        src = src.replace(/ext:/, 'extension/');
+                                    }
+                                    divImp2.setBackgroundImage(src);
+                                } else {
+                                    var img = new Image();
+                                    img.src = `image/card/${card}.png`;
+                                    img.onload = function () {
+                                        divImp2.setBackgroundImage(`image/card/${card}.png`);
+                                    };
+                                    img.onerror = function () {
+                                        divImp2.setBackgroundImage(`image/card/${card}.png`);
+                                        if (card == 'yuheng_plus' || card == 'yuheng_pro') {
+                                            divImp2.setBackgroundImage('image/card/yuheng.png');
+                                        }
+                                    };
+                                }
+                            };
+                            cardImp(spoil.result);
+                            var name = get.translation(spoil.result);
+                            var divName = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivName', `${name}`, div);
+                        } else if (spoil.name == 'equip') {
+                            var divImp2 = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivImp2', divImp);
+                            var cardImp = function (card) {
+                                if (lib.card[card].fullimage || lib.card[card].fullborder) {
+                                    divImp2.style.height = '120%';
+                                }
+                                var src = lib.card[card].image;
+                                if (src) {
+                                    if (src.indexOf('ext:') == 0) {
+                                        src = src.replace(/ext:/, 'extension/');
+                                    }
+                                    divImp2.setBackgroundImage(src);
+                                } else {
+                                    var img = new Image();
+                                    img.src = `image/card/${card}.png`;
+                                    img.onload = function () {
+                                        divImp2.setBackgroundImage(`image/card/${card}.png`);
+                                    };
+                                    img.onerror = function () {
+                                        divImp2.setBackgroundImage(`image/card/${card}.png`);
+                                        if (card == 'yuheng_plus' || card == 'yuheng_pro') {
+                                            divImp2.setBackgroundImage('image/card/yuheng.png');
+                                        }
+                                    };
+                                }
+                            };
+                            cardImp(spoil.result);
+                            var name = get.translation(spoil.result);
+                            var divName = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivName', `${name}`, div);
+                        } else if (spoil.name == 'buff') {
+                            divImp.setBackgroundImage(`extension/太虚幻境/image/buff/${spoil.result}.png`);
+                            var name = game.buffPack[spoil.result].name;
+                            var info = game.buffPack[spoil.result].info;
+                            var divName = ui.create.div('.taixuhuanjing_StateHomeSpoilsBoxDivName', `${name}`, div);
+                        }
+                        return div;
+                    }
+                    const list2 = [];
+                    for (const i of list) {
+                        game.eventResult(i);//QQQ
+                        if (i.effect.length) {
+                            for (const j of i.effect) {
+                                list2.push(j);
+                            }
+                        }
+                    }
+                    for (const i of list2) {
+                        spoilsBox.appendChild(func(i));
+                    }
+                    return spoilsBox;
+                })(),
+            };
+            for (var i in spoilsComps) {
+                spoilsBody.appendChild(spoilsComps[i]);
+            }
+        };
+        if (num >= max) {
+            const list = [
+                {
+                    name: '技能',
+                    type: 'randomSkill',
+                    info: '获得技能',
+                    num: 1,
+                    show_priority: 8,
+                },
+                {
+                    name: '卡牌',
+                    type: 'randomCard',
+                    info: '获得卡牌',
+                    num: 1,
+                    show_priority: 1,
+                },
+                {
+                    name: '装备',
+                    type: 'randomEquip',
+                    info: '获得装备',
+                    num: 1,
+                    show_priority: 2,
+                },
+                {
+                    name: '调度次数',
+                    type: 'adjust',
+                    info: '调度次数+1',
+                    num: 1,
+                    show_priority: 3,
+                },
+                {
+                    name: '体力上限',
+                    type: 'maxHp',
+                    info: '体力上限',
+                    num: 1,
+                    show_priority: 4,
+                },
+                {
+                    name: '初始手牌',
+                    type: 'minHs',
+                    info: '初始手牌+1',
+                    num: 1,
+                    show_priority: 5,
+                },
+                {
+                    name: '手牌上限',
+                    type: 'maxHs',
+                    info: '手牌上限+2',
+                    num: 2,
+                    show_priority: 6,
+                },
+                {
+                    name: '金币',
+                    type: 'coin',
+                    info: '金币+300',
+                    num: 300,
+                    show_priority: 7,
+                },
+                {
+                    name: '祝福',
+                    type: 'randomBuff',
+                    info: '获得祝福',
+                    num: 1,
+                    show_priority: 9,
+                },
+            ].randomGets(4);
+            list.sort(function (a, b) {
+                return a.showpriority - b.showpriority;
+            });
+            game.levelUp('等级提升', list, type, homeBody);
+            num -= max;
+            lib.config.taixuhuanjing.level += 1;
+            lib.config.taixuhuanjing.maxExp = 100 + lib.config.taixuhuanjing.level * 10;
+            game.messagePopup(`等级提升至${get.cnNumber(lib.config.taixuhuanjing.level, true)}级`);
+        }//升级
+        lib.config.taixuhuanjing.exp = num;
+        if (type == true) {
+            const list = [];
+            for (const i of evtid.spoils) {
+                if (Math.random() <= i.random) {
+                    list.push(i);
+                }
+            }
+            for (const i of evtid.enemy) {
+                if (i.spoils?.length) {
+                    for (const j of i.spoils) {
+                        if (Math.random() <= j.random) {
+                            list.push(j);
+                        }
+                    }
+                }
+            }
+            if (lib.config.taixuhuanjing.buff.includes('txhj_aHaoSkill1')) {
+                list.push({
+                    result: true,
+                    name: '随机装备',
+                    effect: [{ name: 'randomEquip', number: 1 }],
+                    random: 1,
+                });
+            }
+            if (lib.config.taixuhuanjing.buff.includes('buff_txhj_mizhixianren')) {
+                list.push({
+                    result: true,
+                    name: '随机技能',
+                    effect: [{ name: 'randomSkill', number: 1 }],
+                    random: 1,
+                });
+            }
+            if (lib.config.taixuhuanjing.buff.includes('buff_txhj_ligunligunli')) {
+                var numlx = Math.floor(lib.config.taixuhuanjing.coin / 10);
+                list.push({
+                    result: true,
+                    name: '利息',
+                    effect: [{ name: 'coin', number: numlx }],
+                });
+            }
+            homeBody.update(list);
+        }
+        lib.config.taixuhuanjing.events.push(_status.TaiXuHuanJingGame.event);
+        if (evtid.type == 'boss') {
+            if (typeof chapter == 'number' && game.seasonPack[season][`${chapter}IF`]) {
+                var premise = game.seasonPack[season][`${chapter}IF`].premise.slice(0);
+                var result = premise.length;
+                for (var i = 0; i < premise.length; i++) {
+                    for (var e = 0; e < lib.config.taixuhuanjing.events.length; e++) {
+                        if (lib.config.taixuhuanjing.events[e].id == premise[i]) {
+                            result--;
+                        }
+                    }
+                }
+                if (result == 0) {
+                    lib.config.taixuhuanjing.chapter = chapter + 'IF';
+                } else {
+                    lib.config.taixuhuanjing.chapter++;
+                }
+            } else if (typeof chapter == 'string' && chapter.indexOf('IF') != -1) {
+                lib.config.taixuhuanjing.chapter = 1 + parseInt(chapter.split('IF')[0]);
+            } else {
+                lib.config.taixuhuanjing.chapter++;
+            }
+            delete lib.config.taixuhuanjing.store;
+            lib.config.taixuhuanjing.procedure = null;
+            lib.config.taixuhuanjing.optional1 = null;
+            lib.config.taixuhuanjing.optional2 = null;
+            lib.config.taixuhuanjing.optional3 = null;
+            lib.config.taixuhuanjing.optionalExam = [];
+        }
+        if (lib.config.taixuhuanjing.optional1 != null && lib.config.taixuhuanjing.optional1.id == id) {
+            lib.config.taixuhuanjing.optional1 = null;
+        } else if (lib.config.taixuhuanjing.optional2 != null && lib.config.taixuhuanjing.optional2.id == id) {
+            lib.config.taixuhuanjing.optional2 = null;
+        } else if (lib.config.taixuhuanjing.optional3 != null && lib.config.taixuhuanjing.optional3.id == id) {
+            lib.config.taixuhuanjing.optional3 = null;
+        }
+        if (_status.zhoumu) {
+            delete _status.zhoumu;
+            lib.config.taixuhuanjing.gameplus++;
+            lib.config.taixuhuanjing.maxSkills++;
+            if (lib.config.mode_config.taixuhuanjing.plusSeasonChange == '1') {
+                const zhoumu = ['ChongYingChuLin', 'HuangTianZhiNu', 'HeJinZhuHuan', 'MGBaWangZhengCheng', 'GFHuangJinZhiLuan', 'GFChangBanZhiZhan', 'GFChiBiZhiZhan', 'GFQiQinMengHuo', 'LiGuoZhiLuan', 'ShiChangShiZhiLuan', 'QianLiZouDanJi', 'MGGuanDuZhiZhan', 'NSHeZhongKangQin', 'HaiWaiFenghe', 'YcFuQinYiZhou', 'PveKuibaSkMitan'];
+                lib.config.taixuhuanjing.season = zhoumu.randomGet();
+            }
+            else if (lib.config.mode_config.taixuhuanjing.plusSeasonChange != '0') {
+                lib.config.taixuhuanjing.season = lib.config.mode_config.taixuhuanjing.plusSeasonChange;
+            }
+            lib.config.taixuhuanjing.chapter = 0;
+            delete lib.config.taixuhuanjing.store;
+            lib.config.taixuhuanjing.procedure = null;
+            lib.config.taixuhuanjing.optional1 = null;
+            lib.config.taixuhuanjing.optional2 = null;
+            lib.config.taixuhuanjing.optional3 = null;
+            lib.config.taixuhuanjing.optionalExam = [];
+        }
+        game.saveConfig('taixuhuanjing', lib.config.taixuhuanjing);
+    }; //战绩结算页面
+    game.levelUp = function (str, list, result, view) {
+        game.txhj_playAudioCall('LevelUp', null, true);
+        const homeBody = ui.create.div('.taixuhuanjing_StateHomeBody2', view);
+        homeBody.oncontextmenu = function (e) {
+            /*右键*/
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        };
+        var choice;
+        var title = ui.create.div('.taixuhuanjing_StateHomeTitle', str + '', homeBody);
+        var title2 = ui.create.div('.taixuhuanjing_StateHomeTitle2', '请选择以下 1 项效果获取', homeBody);
+        var box = ui.create.div('.taixuhuanjing_StateHomeBox', homeBody);
+        function func(spoil) {
+            const div = ui.create.div('.taixuhuanjing_StateHomeBoxDiv');
+            var bg1 = ui.create.div('.taixuhuanjing_StateHomeBoxDivBg1', div);
+            var bg2 = ui.create.div('.taixuhuanjing_StateHomeBoxDivBg2', div);
+            var name = spoil.name;
+            var divName = ui.create.div('.taixuhuanjing_StateHomeBoxDivName', `${name}`, div);
+            if (spoil.type == 'randomSkill') {
+                var skills = txhjPack.skillRank.slice(0);
+                var listm = get.character(lib.config.taixuhuanjing.name, 3).slice(0);
+                for (var i = 0; i < skills.length; i++) {
+                    var skillID = skills[i].skillID;
+                    if (!skillID) {
+                        delete skills[i];
+                    }
+                    if (lib.config.taixuhuanjing.useSkills.includes(skillID)) {
+                        delete skills[i];
+                    } else if (listm.includes(skillID)) {
+                        delete skills[i];
+                    }
+                }
+                var skill = skills.randomGet();
+                div.choice = {
+                    return: true,
+                    name: '技能',
+                    effect: [{ name: 'skill', number: 1, result: skill.skillID }],
+                };
+                var skillName = get.translation(skill.skillID);
+                var skillInfo = lib.translate[`${skill.skillID}_info`];
+                var divSkill = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkill', div);
+                var divSkillNameShadow = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkillNameShadow', `${skillName}`, divSkill);
+                var divSkillName = ui.create.div('.taixuhuanjing_StateHomeBoxDivSkillName', `${skillName}`, divSkill);
+                var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo2', `${skillInfo}`, div);
+            } else if (spoil.type == 'randomCard') {
+                const list = [];
+                const cards = txhjPack.cardPack.slice(0);
+                if (Array.isArray(cards))
+                    for (var i of cards) {
+                        if (lib.translate[i.cardID] && get.type(i.cardID) != 'equip') {
+                            list.push(i.cardID);
+                        }
+                    }
+                const name = list.randomGet();
+                div.choice = {
+                    return: true,
+                    name: '卡牌',
+                    effect: [{ name: 'card', number: 1, result: name }],
+                };
+                const card2 = game.createCard(name);
+                card2.classList.add('taixucard');
+                div.appendChild(card2);
+            } else if (spoil.type == 'randomEquip') {
+                const list = [];
+                for (const i of txhjPack.cardRank) {
+                    if (i.unique != false) continue;
+                    const name = i.cardID;
+                    if (lib.translate[name] && get.type(name) == 'equip') {
+                        list.push(name);
+                    }
+                } //QQQ
+                const name = list.randomGet();
+                div.choice = {
+                    return: true,
+                    name: '装备',
+                    effect: [{ name: 'equip', number: 1, result: name }],
+                };
+                const card2 = game.createCard(name);
+                card2.classList.add('taixucard');
+                div.appendChild(card2);
+            } else if (spoil.type == 'randomBuff') {
+                var buffs = [];
+                for (var i in game.buffPack) {
+                    if (game.buffPack[i].store == false) continue;
+                    if (!lib.config.taixuhuanjing.buff.includes(i)) {
+                        buffs.push(i);
+                    }
+                }
+                var buff = buffs.randomGet();
+                div.choice = {
+                    return: true,
+                    name: '祝福',
+                    effect: [{ name: 'buff', number: 1, result: buff }],
+                };
+                var skillName = game.buffPack[buff].name;
+                var divImpBg = ui.create.div('.taixuhuanjing_StateHomeBoxDivImpBg', div);
+                var divImp = ui.create.div('.taixuhuanjing_StateHomeBoxDivImp', div);
+                divImp.setBackgroundImage(`extension/太虚幻境/image/buff/${buff}.png`);
+                var skillInfo = game.buffPack[buff].info;
+                var desc = ui.create.div('.taixuhuanjing_StateHomeBoxDivDesc');
+                desc.style.width = '330%';
+                divImp.appendChild(desc);
+                desc.innerHTML = `<p style='color: gold;margin: 2%;'>${skillName}</p><p style='margin: 2%;'>${skillInfo}</p>`;
+                divImp.onmouseover = function (e) {
+                    div.style.zIndex = '11';
+                    var width = document.body.offsetWidth;
+                    var height = document.body.offsetHeight;
+                    var startX = e.clientX / game.documentZoom;
+                    var startY = e.clientY / game.documentZoom;
+                    var rise1 = Math.round((startX / width) * 10000) / 100;
+                    var rise2 = Math.round((startY / height) * 10000) / 100;
+                    if (rise1 > 70) {
+                        desc.style.left = '-330%';
+                    } else {
+                        desc.style.left = '100%';
+                    }
+                    desc.style.top = `-${rise2}%`;
+                    desc.style.display = 'block';
+                };
+                divImp.onmouseout = function () {
+                    div.style.zIndex = '10';
+                    desc.style.display = 'none';
+                };
+                var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', skillName + '', div);
+            } else {
+                var divImp = ui.create.div('.taixuhuanjing_StateHomeBoxDivImp', div);
+                if (spoil.type == 'coin') {
+                    var divImp = ui.create.div('.taixuhuanjing_StateHomeBoxDivImp', div);
+                    divImp.setBackgroundImage('extension/太虚幻境/image/icon/coin.png');
+                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '金币+300', div);
+                    div.choice = {
+                        return: true,
+                        name: '金币',
+                        effect: [{ name: 'coin', number: 300 }],
+                    };
+                }
+                if (spoil.type == 'maxHp') {
+                    divImp.setBackgroundImage('extension/太虚幻境/image/icon/maxHp.png');
+                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '体力上限+1', div);
+                    div.choice = {
+                        return: true,
+                        name: '体力上限',
+                        effect: [{ name: 'maxHp', number: 1 }],
+                    };
+                }
+                if (spoil.type == 'hp') {
+                    divImp.setBackgroundImage(`extension/太虚幻境/image/icon/${spoil.type}.png`);
+                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '体力+1', div);
+                    div.choice = {
+                        return: true,
+                        name: '体力',
+                        effect: [{ name: 'hp', number: 1 }],
+                    };
+                }
+                if (spoil.type == 'minHs') {
+                    20562;
+                    divImp.setBackgroundImage('extension/太虚幻境/image/icon/minHs.png');
+                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '初始手牌+1', div);
+                    div.choice = {
+                        return: true,
+                        name: '初始手牌',
+                        effect: [{ name: 'minHs', number: 1 }],
+                    };
+                }
+                if (spoil.type == 'maxHs') {
+                    divImp.setBackgroundImage('extension/太虚幻境/image/icon/maxHs.png');
+                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '手牌上限+2', div);
+                    div.choice = {
+                        return: true,
+                        name: '手牌上限',
+                        effect: [{ name: 'maxHs', number: 2 }],
+                    };
+                }
+                if (spoil.type == 'adjust') {
+                    divImp.setBackgroundImage('extension/太虚幻境/image/icon/adjust.png');
+                    var divInfo = ui.create.div('.taixuhuanjing_StateHomeBoxDivInfo1', '调度次数+1', div);
+                    div.choice = {
+                        return: true,
+                        name: '调度次数',
+                        effect: [{ name: 'adjust', number: 1 }],
+                    };
+                }
+            }
+            div.listen(function (e) {
+                game.txhj_playAudioCall('WinButton', null, true);
+                choice = div.choice;
+                if (box.choosingNow) {
+                    box.choosingNow.noChoiced();
+                }
+                this.choiced();
+                event.cancelBubble = true;
+                event.returnValue = false;
+                return false;
+            });
+            div.choiced = function () {
+                box.choosingNow = this;
+                bg1.setBackgroundImage('extension/太虚幻境/image/icon/icon_frame18.png');
+            };
+            div.noChoiced = function () {
+                box.choosingNow = null;
+                bg1.style.backgroundImage = 'none';
+            };
+            return div;
+        }
+        var button = ui.create.div('.taixuhuanjing_StateHomeBoxButton', '确认选择', box);
+        button.listen(function (e) {
+            if (!choice) {
+                game.messagePopup('请选择一项效果');
+                return;
+            }
+            game.txhj_playAudioCall('off', null, true);
+            view.update([choice]);
+            view.removeChild(homeBody);
+            event.cancelBubble = true;
+            event.returnValue = false;
+            return false;
+        });//这里点击的时候可能已经跳了周目
+        for (const i of list) {
+            box.appendChild(func(i));
+        }
+    };//升级奖励
     get.rawAttitude = function (from, to) {
         if (from.side == to.side) {
             if (from.exten && from.exten.type == 'boss') {
@@ -8625,7 +8625,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     return: null,
                 };
                 ('step 2');
-                game.taixuhuanjingHome();
+                game.taixuhuanjingHome();//初始界面
             },
             game: {
                 transitionAnimation() {
@@ -8646,7 +8646,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     async phaseLoop(event, trigger, player) {
                         let num = 1,
                             current = player;
-                        while (current.getSeatNum() === 0) {
+                        while (current.seatNum === 0) {
                             current.seatNum = num;
                             current = current.next;
                             num++;
@@ -8661,13 +8661,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                                     isRoundEnd = _status.roundSkipped;
                                     if (_status.isRoundFilter) {
                                         isRoundEnd = _status.isRoundFilter(phase, event.player);
-                                    } else if (_status.seatNumSettled) {
-                                        const seatNum = event.player.getSeatNum();
-                                        if (seatNum != 0) {
-                                            if (get.itemtype(_status.lastPhasedPlayer) != 'player' || seatNum < _status.lastPhasedPlayer.getSeatNum()) {
-                                                isRoundEnd = true;
-                                            }
-                                        }
                                     } else if (event.player == _status.roundStart) {
                                         isRoundEnd = true;
                                     }
