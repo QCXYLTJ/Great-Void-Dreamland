@@ -1,10 +1,11 @@
 ﻿'use strict';
 game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
+    window.taixu = {};
     txhj.isMobile = navigator.userAgent.match(/(Android|iPhone|SymbianOS|Windows Phone|iPad|iPod)/i);
     if (txhj.isMobile) {
-        lib.init.css(`${lib.assetURL}extension/太虚幻境`, 'extension_MobileStyle');
+        lib.init.css(`extension/太虚幻境`, 'extension_MobileStyle');
     } else {
-        lib.init.css(`${lib.assetURL}extension/太虚幻境`, 'extension_PcStyle');
+        lib.init.css(`extension/太虚幻境`, 'extension_PcStyle');
     }
     txhj.rule = '太虚幻境玩法說明' + '<br>在此模式中,你挑戰若干個章節中隨機出現的關卡,通過戰鬥、使用挑戰中獲得的金幣購買或是經歷隨機的事件來獲得各種補強.' + '<br>你可以獲得新的技能、每次對局都會自動裝備的裝備、每次開局都會入手的個人牌庫牌,以及各類效果不同的祝福如果在挑戰關卡不慎失敗,就要重新開始;只有找到適合自己的組合搭配,才能挑戰最終首領,獲得這左慈修煉的太虚幻境中的<真傳之秘>' + '<br>本次挑戰開放五個難度,挑戰一個難度成功後即可解鎖更高難度.' + '<br>不同的難度下敵人的體力也不同,高難度甚至會有額外的技能加成.' + '<br>在賽季開放時間內,不用擔心必須要一口氣結束一整場挑戰哦' + '<br>每次進行選擇或者挑戰了關卡後都會存檔,賽季之中可以任意遊玩' + '<br>重複挑戰,嘗試強大的搭配、有趣的通關方式,擊敗最高難度的各類敵人吧!';
     game.examineModeConfig = function () {
@@ -998,7 +999,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                                     if (group) return group[0];
                                     return lib.character[name][1];
                                 };
-                                showBoxcContent2Group.style['background-image'] = `url(${lib.assetURL}extension/十周年UI/image/decoration/name_${getGroup(name)}.png)`;
+                                showBoxcContent2Group.style['background-image'] = `url(extension/十周年UI/image/decoration/name_${getGroup(name)}.png)`;
                                 showBoxcContent2Title.innerHTML = lib.translate[name];
                                 showBoxcContent2Text.update = function (button) {
                                     showBoxcContent2Text.innerHTML = '';
@@ -1694,7 +1695,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
             });
             div.oncontextmenu = function (e) {
                 game.txhj_playAudioCall('WinButton', null, true);
-                game.pause2();
                 ui.click.charactercard(play, null, null, true, this);
                 event.cancelBubble = true;
                 event.returnValue = false;
@@ -2059,7 +2059,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
             });
             div.oncontextmenu = function (e) {
                 game.txhj_playAudioCall('WinButton', null, true);
-                game.pause2();
                 ui.click.charactercard(name, null, null, true, this);
                 event.cancelBubble = true;
                 event.returnValue = false;
@@ -4027,16 +4026,16 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                         var num2 = maxHp1 - hp1;
                         while (hp1--) {
                             var tmp = ui.create.div('.taixuhuanjing_chooseCharacterPlayBodyHpICON', playHp);
-                            tmp.style['background-image'] = `url(${lib.assetURL}extension/太虚幻境/image/icon/maxHp.png)`;
+                            tmp.style['background-image'] = `url(extension/太虚幻境/image/icon/maxHp.png)`;
                         }
                         while (num2--) {
                             var tmp = ui.create.div('.taixuhuanjing_chooseCharacterPlayBodyHpICON', playHp);
-                            tmp.style['background-image'] = `url(${lib.assetURL}extension/太虚幻境/image/icon/maxHp.png)`;
+                            tmp.style['background-image'] = `url(extension/太虚幻境/image/icon/maxHp.png)`;
                             tmp.style.webkitFilter = 'grayscale(1)';
                         }
                     } else {
                         var tmp = ui.create.div('.taixuhuanjing_chooseCharacterPlayBodyHpICON', playHp);
-                        tmp.style['background-image'] = `url(${lib.assetURL}extension/太虚幻境/image/icon/maxHp.png)`;
+                        tmp.style['background-image'] = `url(extension/太虚幻境/image/icon/maxHp.png)`;
                         var numbody = ui.create.div('.taixuhuanjing_chooseCharacterPlayBodyHpNum', hp + '', playHp);
                     }
                     return playText;
@@ -5513,18 +5512,20 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 const str = imp.style.backgroundImage;
                 if (str) {
                     //QQQ
-                    if (lib.device == 'ios' || lib.device == 'android') {
-                        var tmp = str.split('(')[1].split(')')[0];
-                        if (tmp.indexOf('"') > -1) {
-                            tmp = tmp.split('"')[1].split('"')[0];
+                    if (str.includes('url')) {
+                        if (lib.device == 'ios' || lib.device == 'android') {
+                            var tmp = str.split('(')[1].split(')')[0];
+                            if (tmp.indexOf('"') > -1) {
+                                tmp = tmp.split('"')[1].split('"')[0];
+                            }
+                        } else {
+                            var tmp = str.split('("')[1].split('")')[0];
                         }
-                    } else {
-                        var tmp = str.split('("')[1].split('")')[0];
                     }
                     var firstPromise = new Promise(function (resolve, reject) {
                         var reader = new FileReader();
                         var img = new Image();
-                        img.src = lib.assetURL + decodeURI(tmp);
+                        img.src = decodeURI(tmp);
                         if (lib.device == 'ios' || lib.device == 'android') {
                             img.src = tmp;
                         }
@@ -5942,7 +5943,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         if (!txhj.isInitCardPileTx) {
             lib.card.list = [];
             var list = [
-                /*♠️*/
+                /*♠️️*/
                 ['spade', '1', 'shandian'],
                 ['spade', '1', 'juedou'],
                 ['spade', '3', 'shunshou'],
@@ -5972,7 +5973,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 ['spade', '12', 'tiesuo'],
                 ['spade', '13', 'nanman'],
                 ['spade', '13', 'wuxie'],
-                /*♥️*/
+                /*♥️️*/
                 ['heart', '1', 'taoyuan'],
                 ['heart', '1', 'wanjian'],
                 ['heart', '1', 'wuxie'],
@@ -6008,7 +6009,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 ['heart', '12', 'shandian'],
                 ['heart', '12', 'wuzhong'],
                 ['heart', '13', 'wuxie'],
-                /*♦️*/
+                /*♦️️*/
                 ['diamond', '1', 'juedou'],
                 ['diamond', '2', 'shan'],
                 ['diamond', '2', 'shan'],
@@ -6039,7 +6040,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 ['diamond', '12', 'tao'],
                 ['diamond', '12', 'huogong'],
                 ['diamond', '13', 'sha'],
-                /*♣️*/
+                /*♣️️*/
                 ['club', '1', 'juedou'],
                 ['club', '2', 'sha'],
                 ['club', '3', 'sha'],
@@ -6139,7 +6140,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
             ];
             if (lib.config.taixuhuanjing.buff.includes('buff_txhj_qiqiaolinglong')) {
                 list = [
-                    /*♠️*/
+                    /*♠️️*/
                     ['spade', '1', 'shandian'],
                     ['spade', '1', 'juedou'],
                     ['spade', '3', 'shunshou'],
@@ -6169,7 +6170,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     ['spade', '12', 'tiesuo'],
                     ['spade', '13', 'nanman'],
                     ['spade', '13', 'wuxie'],
-                    /*♥️*/
+                    /*♥️️*/
                     ['heart', '1', 'taoyuan'],
                     ['heart', '1', 'wanjian'],
                     ['heart', '1', 'wuxie'],
@@ -6205,7 +6206,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     ['heart', '12', 'shandian'],
                     ['heart', '12', 'wuzhong'],
                     ['heart', '13', 'wuxie'],
-                    /*♦️*/
+                    /*♦️️*/
                     ['diamond', '1', 'juedou'],
                     ['diamond', '2', 'shan'],
                     ['diamond', '2', 'shan'],
@@ -6236,7 +6237,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     ['diamond', '12', 'tao'],
                     ['diamond', '12', 'huogong'],
                     ['diamond', '13', 'sha'],
-                    /*♣️*/
+                    /*♣️️*/
                     ['club', '1', 'juedou'],
                     ['club', '2', 'sha'],
                     ['club', '3', 'sha'],
@@ -6363,6 +6364,22 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         return list;
     };
     game.TaiXuHuanJingState = function (type) {
+        taixu.zhongzhi = true;
+        taixu.gameDraw.finish();
+        taixu.phaseLoop.finish();
+        const players = game.players.concat(game.dead);
+        for (const i of players) {
+            game.removePlayer(i);
+        }
+        ui.me.remove();
+        ui.mebg.remove();
+        ui.handcards1Container.remove();
+        ui.handcards2Container.remove();
+        for (const i of Array.from(ui.arena.childNodes)) {
+            if (i.classList.contains('center')) {
+                i.remove();
+            }
+        } //清空中央区卡牌
         _status.modeNode.score.round += game.roundNumber;
         _status.modeNode.score.fight += 1;
         lib.config.taixuhuanjing = _status.modeNode;
@@ -6620,7 +6637,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         }
         clearSLBuff();
         delete game.me.buff;
-        game.pause();//QQQ
         var levelBody = ui.create.div('.taixuhuanjing_StateHomelevelBody', homeBody);
         var spoilsBody = ui.create.div('.taixuhuanjing_StateHomeSpoilsBody', homeBody);
         if (type != null) {
@@ -6690,7 +6706,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                                     divImp2.setBackgroundImage(src);
                                 } else {
                                     var img = new Image();
-                                    img.src = lib.assetURL + `image/card/${card}.png`;
+                                    img.src = `image/card/${card}.png`;
                                     img.onload = function () {
                                         divImp2.setBackgroundImage(`image/card/${card}.png`);
                                     };
@@ -6719,7 +6735,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                                     divImp2.setBackgroundImage(src);
                                 } else {
                                     var img = new Image();
-                                    img.src = lib.assetURL + `image/card/${card}.png`;
+                                    img.src = `image/card/${card}.png`;
                                     img.onload = function () {
                                         divImp2.setBackgroundImage(`image/card/${card}.png`);
                                     };
@@ -6939,8 +6955,8 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
     game.sort = function () {
         const players = game.players.filter(Boolean);
         const deads = game.dead.filter(Boolean);
-        const allPlayers = players.concat(deads);
-        const bool = lib.config.extension_太虚幻境_死亡移除;
+        const allPlayers = deads.concat(players);//先移除players后面玩家会前移,再添加入dead需要同排序取前
+        const bool = lib.config.dieremove;
         const playerx = bool ? players : allPlayers;
         ui.arena.setNumber(playerx.length);
         if (bool) {
@@ -6948,7 +6964,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 player.classList.add('removing', 'hidden');
             });
         }//隐藏死亡角色
-        playerx.sort((a, b) => a.dataset.position - b.dataset.position);
+        playerx.sort((a, b) => Number(a.dataset.position) - Number(b.dataset.position));
         if (playerx.includes(game.me) && playerx[0] != game.me) {
             while (playerx[0] != game.me) {
                 const start = playerx.shift();
@@ -6958,17 +6974,15 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         playerx.forEach((player, index, array) => {
             player.dataset.position = index;
             const zhu = _status.roundStart || game.zhu || game.boss || array.find((p) => p.seatNum == 1) || array[0];
-            const zhuPos = zhu.dataset?.position;
-            if (typeof zhuPos == 'number') {
-                const num = index - zhuPos + 1;
-                if (index < zhuPos) {
-                    player.seatNum = players.length - num;
-                } else {
-                    player.seatNum = num;
-                }
+            const zhuPos = Number(zhu.dataset.position);
+            const num = index - zhuPos + 1;
+            if (index < zhuPos) {
+                player.seatNum = players.length - num;
+            } else {
+                player.seatNum = num;
             }
         });//修改dataset.position与seatNum
-        players.sort((a, b) => a.dataset.position - b.dataset.position);
+        players.sort((a, b) => Number(a.dataset.position) - Number(b.dataset.position));
         players.forEach((player, index, array) => {
             if (bool) {
                 player.classList.remove('removing', 'hidden');
@@ -6987,12 +7001,12 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
             player.previous = array[index === 0 ? array.length - 1 : index - 1];
             player.next = array[index === array.length - 1 ? 0 : index + 1];
         });//展示零号位手牌/修改previous/显示元素
-        allPlayers.sort((a, b) => a.dataset.position - b.dataset.position);
+        allPlayers.sort((a, b) => Number(a.dataset.position) - Number(b.dataset.position));
         allPlayers.forEach((player, index, array) => {
             player.previousSeat = array[index === 0 ? array.length - 1 : index - 1];
             player.nextSeat = array[index === array.length - 1 ? 0 : index + 1];
         });//修改previousSeat
-        game.players.sort((a, b) => a.dataset.position - b.dataset.position);
+        game.players.sort((a, b) => Number(a.dataset.position) - Number(b.dataset.position));
         return true;
     };
     game.consoledesk = function () {
@@ -7107,18 +7121,20 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     const str = imp.style.backgroundImage;
                     if (str) {
                         //QQQ
-                        if (lib.device == 'ios' || lib.device == 'android') {
-                            var tmp = str.split('(')[1].split(')')[0];
-                            if (tmp.indexOf('"') > -1) {
-                                tmp = tmp.split('"')[1].split('"')[0];
+                        if (str.includes('url')) {
+                            if (lib.device == 'ios' || lib.device == 'android') {
+                                var tmp = str.split('(')[1].split(')')[0];
+                                if (tmp.indexOf('"') > -1) {
+                                    tmp = tmp.split('"')[1].split('"')[0];
+                                }
+                            } else {
+                                var tmp = str.split('("')[1].split('")')[0];
                             }
-                        } else {
-                            var tmp = str.split('("')[1].split('")')[0];
                         }
                         var firstPromise = new Promise(function (resolve, reject) {
                             var reader = new FileReader();
                             var img = new Image();
-                            img.src = lib.assetURL + decodeURI(tmp);
+                            img.src = decodeURI(tmp);
                             if (lib.device == 'ios' || lib.device == 'android') {
                                 img.src = tmp;
                             }
@@ -7201,7 +7217,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         };
         playBody.oncontextmenu = function (e) {
             game.txhj_playAudioCall('WinButton', null, true);
-            game.pause2();
             ui.click.charactercard(name, null, null, true, this);
             event.cancelBubble = true;
             event.returnValue = false;
@@ -7275,7 +7290,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                         var div = ui.create.div('.taixuhuanjing_consoledeskAttributeBody1Div');
                         var divText = ui.create.div('.taixuhuanjing_consoledeskAttributeBody1DivText', div);
                         var divText2 = ui.create.div('.taixuhuanjing_consoledeskAttributeBody1DivText2', div);
-                        var str1 = `<span style="color:#916843;">${text}: </span>`;
+                        var str1 = `<span style="color: #916843;">${text}: </span>`;
                         var str2 = '';
                         if (text == '初始手牌数') {
                             str2 = lib.config.taixuhuanjing.minHs;
@@ -7415,11 +7430,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                             equipInfo1 = get.translation(lib.config.taixuhuanjing.equip4.name);
                             equipInfo2 = lib.translate[`${lib.config.taixuhuanjing.equip4.name}_info`];
                         }
-                        if (equipInfo1 && equipInfo2) {
-                            var desc = ui.create.div('.taixuhuanjing_equipInfoDesc');
-                            document.body.appendChild(desc);
-                            desc.innerHTML = `<p style='color: gold;margin: 2%;'>${equipInfo1}</p><p style='margin: 2%;'>${equipInfo2}</p>`;
-                        }
                         div.addEventListener('click', function () {
                             game.txhj_playAudioCall('raw_equip', null, true);
                             game.lookEquip(home);
@@ -7427,13 +7437,16 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                             event.returnValue = false;
                             return false;
                         });
-                        div.onmouseover = function () {
-                            if (!desc) return;
-                            desc.style.display = 'block';
-                        };
-                        div.onmouseout = function () {
-                            if (!desc) return;
-                            desc.style.display = 'none';
+                        div.oncontextmenu = function () {
+                            if (equipInfo1 && equipInfo2) {
+                                const desc = ui.create.div('.taixuhuanjing_equipInfoDesc');
+                                document.body.appendChild(desc);
+                                desc.innerHTML = `<p style='color: gold;margin: 2%;'>${equipInfo1}</p><p style='margin: 2%;'>${equipInfo2}</p>`;
+                                desc.style.display = 'block';
+                                setTimeout(function () {
+                                    desc.remove();
+                                }, 2000);
+                            }
                         };
                         div.innerHTML = `${str}`;
                         return div;
@@ -7962,7 +7975,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
             clearInterval(coinNum.interval);
             home.delete();
             lib.onresize.remove(reConsoledesksize);
-            game.resume();
             game.chooseCharacterTaiXuHuanJing();
         };//点击进入关卡
         home.update = function () {
@@ -8004,7 +8016,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 homeButton.innerHTML = '';
                 if (!ui.click.configMenu) return;
                 game.closePopped();
-                game.pause2();
                 ui.click.configMenu();
                 ui.system1.classList.remove('shown');
                 ui.system2.classList.remove('shown');
@@ -8201,7 +8212,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
             }
         }
     };
-    let currentInstanceId = null; // 当前活跃的实例 ID
     game.chooseCharacterTaiXuHuanJing = async function () {
         ui.auto.show();
         delete _status.roundStart;
@@ -8220,41 +8230,9 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         _status.modeSkill = lib.config.taixuhuanjing.useSkills.slice(0);
         _status.prepareArena = true;
         game.showHistory(false);
-        for (const player of game.players) {
-            await player.discard(player.getCards('hej'));
-        } //丢掉上一局的牌
-        let evt = _status.event;
-        while (evt) {
-            if (evt.next.length) {
-                evt.next = [];
-            }
-            if (evt.name == 'game') {
-                break;
-            }
-            evt.finish();
-            evt = evt.parent;
-        }//清空上一局事件
-        await game.delay();
-        for (const i of game.dead) {
-            i.revive();
-        }
-        let numx = _status.TaiXuHuanJingGame.number - game.players.length;
-        if (numx > 0) {
-            while (numx-- > 0) {
-                const player = ui.create.player(ui.arena).addTempClass('start');
-                player.getId();
-                game.players.push(player);
-            }
-        }
-        else if (numx < 0) {
-            while (numx++ < 0) {
-                game.removePlayer(game.players.pop());
-            }
-        } //调整游戏人数
-        game.sort();
-        ui.create.me();
-        ui.create.cardsAsync();
-        game.finishCards();
+        game.prepareArena(_status.TaiXuHuanJingGame.number);
+        game.zhu = game.me;
+        lib.init.onfree();
         _status.modeNode = lib.config.taixuhuanjing;
         lib.character[_status.choiceCharacter][3] = _status.TaiXuHuanJingGame.skills.slice(0);
         //配置武将合集(不含玩家)
@@ -8262,11 +8240,12 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         const friends = _status.TaiXuHuanJingGame.friend.slice(0); //友方
         const players = enemys.concat(friends); //比game.players少一个玩家
         game.players.forEach(async function (player, index, array) {
-            player.uninit();//QQQ
+            player.getId();
             player.classList.remove('turnedover', 'out');
             if (index == 0) {
                 player.init(_status.choiceCharacter); //玩家选定的武将
                 player.side = true;
+                player.identity = 'zhu';
             } else {
                 const info = players[index - 1];
                 player.exten = info;
@@ -8293,231 +8272,33 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     player.hp += num;
                 }
             }
+            player.node.identity.classList.remove('guessing');
+            player.identityShown = true;
+            player.ai.shown = 1;
+            player.setIdentity();
             player.storage.seat = index; //座位号
             player.node.identity.dataset.color = player.side + 'zhu';
         }); //兼容抗性//内部await,外部也必须await,不然下面的就会比内部的部分先执行
-        const me = game.players[0];
-        game.swapPlayer(me);
         if (document.getElementsByClassName('identity').length) {
             var dialogs = document.querySelectorAll('#arena > div.player > div.identity');
-            dialogs[me.storage.seat].setBackgroundImage('extension/太虚幻境/image/style/identity_gameme.png');
+            dialogs[game.me.storage.seat].setBackgroundImage('extension/太虚幻境/image/style/identity_gameme.png');
         }
         game.gamePremise();
         setTimeout(function () {
             ui.arena.classList.remove('choose-character');
         }, 500);
         _status.enterGame = true;
-        const instanceId = Symbol(); // 为当前调用生成唯一标识符
-        currentInstanceId = instanceId; // 设置当前实例为活跃实例
-        game.resume();
-        await game.delay();
-        if (currentInstanceId === instanceId) {
-            await _status.event.trigger('gameStart');
-        }
-        if (_status.enterGame && currentInstanceId === instanceId) {
+        await _status.event.trigger('gameStart');
+        if (_status.enterGame) {
             for (const npc of game.players) {
                 await game.triggerEnter(npc);
             }
         }
-        if (currentInstanceId === instanceId) {
-            await _status.event.trigger('gameDrawBefore');
-            await _status.event.trigger('gameDrawBegin');
-            me.maxHp = lib.config.taixuhuanjing.maxHp;
-            me.hp = lib.config.taixuhuanjing.hp;
-            for (const target of game.players) {
-                var num1 = 4;
-                if (target == me) {
-                    if (lib.config.taixuhuanjing.minHs >= 0) {
-                        num1 = lib.config.taixuhuanjing.minHs;
-                    }
-                } else if (target.exten) {
-                    num1 = target.exten.minHs;
-                    if (lib.config.taixuhuanjing.rank > 4) {
-                        num1 += 3;
-                    } else if (lib.config.taixuhuanjing.rank > 3) {
-                        num1 += 2;
-                    } else if (lib.config.taixuhuanjing.rank > 2) {
-                        num1 += 1;
-                    }
-                    if (lib.config.taixuhuanjing.effect == 'chongfenbeizhan') {
-                        num1 += 2;
-                    } else if (lib.config.taixuhuanjing.effect == 'cangcuchuji') {
-                        num1 -= 3;
-                    }
-                }
-                if (target == me && lib.config.taixuhuanjing.buff.includes('buff_txhj_pofuchenzhou')) {
-                    num1 = 1;
-                }
-                if (target == me && num1 != me.maxHp && lib.config.taixuhuanjing.buff.includes('buff_txhj_fuzu')) {
-                    num1 = me.maxHp;
-                }
-                target.directgain(get.cards(num1));
-            }
-            const slots = ['equip1', 'equip2', 'equip3', 'equip4'];
-            for (const slot of slots) {
-                const equip = lib.config.taixuhuanjing[slot];
-                if (equip) {
-                    const info = get.translation(equip);
-                    if (info) {
-                        await me.equip(game.createCard(equip.name, equip.suit, equip.number));
-                    }
-                }
-            }
-            let adjust = lib.config.taixuhuanjing.adjust;
-            while (!lib.config.taixuhuanjing.buff.includes('buff_txhj_yunchouweiwo') && adjust > 0) {
-                const { result } = await me.chooseBool(`可以免费使用${adjust}次手气卡,是否更换手牌？`);
-                if (result?.bool) {
-                    adjust--;
-                    const hs = me.getCards('h');
-                    for (const i of hs) {
-                        ui.cardPile.appendChild(i);
-                    }
-                    me.directgain(get.cards(hs.length));
-                } else {
-                    break;
-                }
-            }
-            if (_status.TaiXuHuanJingGame.cards.length) {
-                const hs1 = _status.TaiXuHuanJingGame.cards.map((i) => game.createCard(i.name, i.suit, i.number, i.nature));
-                me.directgain(hs1, true, '牌库');
-            }
-            var equips0 = [];
-            var equips1 = [];
-            var equips2 = [];
-            var equips3 = [];
-            for (var i = 0; i < txhjPack.cardPack.length; i++) {
-                equips0.push(txhjPack.cardPack[i].cardID);
-                var num = get.cardRank(txhjPack.cardPack[i].cardID);
-                if (num >= 3) {
-                    if (lib.translate[txhjPack.cardPack[i].cardID] && get.type(txhjPack.cardPack[i].cardID) == 'equip') {
-                        if (get.subtype(txhjPack.cardPack[i].cardID) == 'equip1') {
-                            equips1.push(txhjPack.cardPack[i].cardID);
-                        } else if (get.subtype(txhjPack.cardPack[i].cardID) == 'equip2') {
-                            equips2.push(txhjPack.cardPack[i].cardID);
-                        } else {
-                            equips3.push(txhjPack.cardPack[i].cardID);
-                        }
-                    }
-                }
-            }
-            for (const npc of game.players) {
-                if (npc != me && npc.exten) {
-                    const exten = npc.exten;
-                    if (exten.maxHp) {
-                        npc.maxHp += exten.maxHp;
-                        npc.hp += exten.maxHp;
-                    }
-                    if (exten.cards.length) {
-                        const hs3 = exten.cards.map((i) => game.createCard(i));
-                        npc.directgain(hs3);
-                    }
-                    if (exten.skills.length) {
-                        npc.addSkill(exten.skills);
-                    }
-                    if (exten.equip.length) {
-                        for (const i of exten.equip) {
-                            npc.equip(game.createCard(i));
-                        }
-                    }
-                    if (npc.side == false && lib.config.taixuhuanjing.rank > 1) {
-                        npc.maxHp++;
-                        npc.hp++;
-                    }
-                    if (npc.side == false && lib.config.taixuhuanjing.gameplus > 1) {
-                        var plushp = (lib.config.taixuhuanjing.gameplus + 9) * lib.config.taixuhuanjing.gameplus;
-                        npc.maxHp += plushp;
-                        npc.hp += plushp;
-                        npc.addSkill('liji');
-                        var zhoumuskill1 = txhjPack.skillRank.randomRemove();
-                        npc.addSkill(zhoumuskill1.skillID);
-                        if (lib.config.taixuhuanjing.gameplus > 2) {
-                            var zhoumuskill2 = txhjPack.skillRank.randomRemove();
-                            npc.addSkill(zhoumuskill2.skillID);
-                        }
-                    }
-                    if (npc.side == false && lib.config.taixuhuanjing.rank > 2) {
-                        npc.addSkill('reyingzi');
-                        npc.addSkill('mashu');
-                    }
-                    var typelist = ['equip1', 'equip2', 'equip3'];
-                    typelist.randomSort();
-                    if (lib.config.taixuhuanjing.effect == 'huanjingcaoge') {
-                        var equip = typelist.shift();
-                        if (equip == 'equip1') {
-                            var equip1 = equips1.randomGet(1);
-                            npc.equip(game.createCard(equip1));
-                            equips1.remove(equip1);
-                        }
-                        if (equip == 'equip2') {
-                            var equip2 = equips2.randomGet(1);
-                            npc.equip(game.createCard(equip2));
-                            equips2.remove(equip2);
-                        }
-                        if (equip == 'equip3') {
-                            var equip3 = equips3.randomGet(1);
-                            npc.equip(game.createCard(equip3));
-                            equips3.remove(equip3);
-                        }
-                    } else {
-                        typelist.remove(typelist.randomGet());
-                    }
-                    if (npc.side == false && lib.config.taixuhuanjing.rank > 3) {
-                        while (typelist.length) {
-                            var equip = typelist.shift();
-                            if (equip == 'equip1') {
-                                var equip1 = equips1.randomGet(1);
-                                npc.equip(game.createCard(equip1));
-                                equips1.remove(equip1);
-                            }
-                            if (equip == 'equip2') {
-                                var equip2 = equips2.randomGet(1);
-                                npc.equip(game.createCard(equip2));
-                                equips2.remove(equip2);
-                            }
-                            if (equip == 'equip3') {
-                                var equip3 = equips3.randomGet(1);
-                                npc.equip(game.createCard(equip3));
-                                equips3.remove(equip3);
-                            }
-                        }
-                    }
-                }
-                if (npc != me && lib.config.taixuhuanjing.effect == 'lingqiyiman') {
-                    npc.maxHp += 2;
-                    npc.hp += 2;
-                } else if (npc != me && lib.config.taixuhuanjing.effect == 'lingqikuijie') {
-                    npc.maxHp -= 1;
-                    npc.hp -= 1;
-                } else if (game.effectPack[lib.config.taixuhuanjing.effect] && game.effectPack[lib.config.taixuhuanjing.effect].skill.length) {
-                    var skills = game.effectPack[lib.config.taixuhuanjing.effect].skill.slice(0);
-                    for (var ii = 0; ii < skills.length; ii++) {
-                        if (npc != me && !npc.hasSkill(skills[ii])) {
-                            npc.addSkill(skills[ii]);
-                        }
-                    }
-                }
-                npc.update();
-            }
-            var event1 = _status.TaiXuHuanJingGame.event;
-            var premise = _status.TaiXuHuanJingGame.premise;
-            game.messagePopup(`${premise}`);
-        }
-        let player = me;
-        while (game.players.length && currentInstanceId === instanceId) {
-            await player.phase();
-            let right2 = player.next;
-            while (right2 && !game.players.includes(right2) && player != right2) {
-                right2 = right2.next;
-            }
-            if (game.players.includes(right2)) {
-                player = right2;
-            }
-            else {
-                break;
-            }
-        }
-        await _status.event.trigger('gameDrawEnd');
-        await _status.event.trigger('gameDrawAfter');
+        taixu.gameDraw = game.gameDraw(game.zhu, () => 4);
+        await taixu.gameDraw;
+        taixu.zhongzhi = false;
+        taixu.phaseLoop = game.phaseLoop(game.zhu);
+        await taixu.phaseLoop;
     };
     get.rawAttitude = function (from, to) {
         if (from.side == to.side) {
@@ -8755,7 +8536,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                "10": "jy_bgm_jiangshanmeiren.mp3",*/
         };
         if (item[temp]) {
-            ui.backgroundMusic.src = lib.assetURL + 'extension/太虚幻境/audio/bgm/' + item[temp];
+            ui.backgroundMusic.src = 'extension/太虚幻境/audio/bgm/' + item[temp];
         } else {
             game.playBackgroundMusic();
             ui.backgroundMusic.addEventListener('ended', game.playBackgroundMusic);
@@ -8781,7 +8562,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 game.seasonPack = {};
                 game.eventPack = {};
                 lib.init.js(
-                    lib.assetURL + 'extension/太虚幻境/extension_buff.js',
+                    'extension/太虚幻境/extension_buff.js',
                     null,
                     function () { },
                     function () {
@@ -8789,7 +8570,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     }
                 );
                 lib.init.js(
-                    lib.assetURL + 'extension/太虚幻境/extension_collect.js',
+                    'extension/太虚幻境/extension_collect.js',
                     null,
                     function () { },
                     function () {
@@ -8797,7 +8578,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     }
                 );
                 lib.init.js(
-                    lib.assetURL + 'extension/太虚幻境/event/event_universal.js',
+                    'extension/太虚幻境/event/event_universal.js',
                     null,
                     function () { },
                     function () {
@@ -8808,7 +8589,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     if (folders) {
                         for (var f of folders) {
                             lib.init.js(
-                                lib.assetURL + `extension/太虚幻境/dlc/${f}/extension_season.js`,
+                                `extension/太虚幻境/dlc/${f}/extension_season.js`,
                                 null,
                                 function () { },
                                 function () { }
@@ -8844,10 +8625,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     return: null,
                 };
                 ('step 2');
-                game.pause();
                 game.taixuhuanjingHome();
-                ('step 3');
-                game.chooseCharacterTaiXuHuanJing();
             },
             game: {
                 transitionAnimation() {
@@ -8863,9 +8641,253 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     }, 2600);
                 },
             },
+            element: {
+                content: {
+                    async phaseLoop(event, trigger, player) {
+                        let num = 1,
+                            current = player;
+                        while (current.getSeatNum() === 0) {
+                            current.seatNum = num;
+                            current = current.next;
+                            num++;
+                        }
+                        while (true) {
+                            if (game.players.includes(event.player)) {
+                                lib.onphase.forEach((i) => i());
+                                const phase = event.player.phase();
+                                event.next.remove(phase);
+                                let isRoundEnd = false;
+                                if (lib.onround.every((i) => i(phase, event.player))) {
+                                    isRoundEnd = _status.roundSkipped;
+                                    if (_status.isRoundFilter) {
+                                        isRoundEnd = _status.isRoundFilter(phase, event.player);
+                                    } else if (_status.seatNumSettled) {
+                                        const seatNum = event.player.getSeatNum();
+                                        if (seatNum != 0) {
+                                            if (get.itemtype(_status.lastPhasedPlayer) != 'player' || seatNum < _status.lastPhasedPlayer.getSeatNum()) {
+                                                isRoundEnd = true;
+                                            }
+                                        }
+                                    } else if (event.player == _status.roundStart) {
+                                        isRoundEnd = true;
+                                    }
+                                    if (isRoundEnd && _status.globalHistory.some((i) => i.isRound)) {
+                                        game.log();
+                                        await event.trigger('roundEnd');
+                                    }
+                                }
+                                event.next.push(phase);
+                                await phase;
+                            }
+                            await event.trigger('phaseOver');
+                            if (taixu.zhongzhi) {
+                                break;
+                            }
+                            let findNext = (current) => {
+                                let players = game.players
+                                    .slice(0)
+                                    .concat(game.dead)
+                                    .sort((a, b) => parseInt(a.dataset.position) - parseInt(b.dataset.position));
+                                let position = parseInt(current.dataset.position);
+                                for (let i = 0; i < players.length; i++) {
+                                    if (parseInt(players[i].dataset.position) > position) {
+                                        return players[i];
+                                    }
+                                }
+                                return players[0];
+                            };
+                            event.player = findNext(event.player);
+                        }
+                    },
+                    async gameDraw(event, trigger, player) {
+                        player.maxHp = lib.config.taixuhuanjing.maxHp;
+                        player.hp = lib.config.taixuhuanjing.hp;
+                        for (const target of game.players) {
+                            var num1 = 4;
+                            if (target == player) {
+                                if (lib.config.taixuhuanjing.minHs >= 0) {
+                                    num1 = lib.config.taixuhuanjing.minHs;
+                                }
+                            } else if (target.exten) {
+                                num1 = target.exten.minHs;
+                                if (lib.config.taixuhuanjing.rank > 4) {
+                                    num1 += 3;
+                                } else if (lib.config.taixuhuanjing.rank > 3) {
+                                    num1 += 2;
+                                } else if (lib.config.taixuhuanjing.rank > 2) {
+                                    num1 += 1;
+                                }
+                                if (lib.config.taixuhuanjing.effect == 'chongfenbeizhan') {
+                                    num1 += 2;
+                                } else if (lib.config.taixuhuanjing.effect == 'cangcuchuji') {
+                                    num1 -= 3;
+                                }
+                            }
+                            if (target == player && lib.config.taixuhuanjing.buff.includes('buff_txhj_pofuchenzhou')) {
+                                num1 = 1;
+                            }
+                            if (target == player && num1 != player.maxHp && lib.config.taixuhuanjing.buff.includes('buff_txhj_fuzu')) {
+                                num1 = player.maxHp;
+                            }
+                            target.directgain(get.cards(num1));
+                        }
+                        const slots = ['equip1', 'equip2', 'equip3', 'equip4'];
+                        for (const slot of slots) {
+                            const equip = lib.config.taixuhuanjing[slot];
+                            if (equip) {
+                                const info = get.translation(equip);
+                                if (info) {
+                                    await player.equip(game.createCard(equip.name, equip.suit, equip.number));
+                                }
+                            }
+                        }
+                        let adjust = lib.config.taixuhuanjing.adjust;
+                        while (!lib.config.taixuhuanjing.buff.includes('buff_txhj_yunchouweiwo') && adjust > 0) {
+                            const { result } = await player.chooseBool(`可以免费使用${adjust}次手气卡,是否更换手牌？`);
+                            if (result?.bool) {
+                                adjust--;
+                                const hs = player.getCards('h');
+                                for (const i of hs) {
+                                    ui.cardPile.appendChild(i);
+                                }
+                                player.directgain(get.cards(hs.length));
+                            } else {
+                                break;
+                            }
+                        }
+                        if (_status.TaiXuHuanJingGame.cards.length) {
+                            const hs1 = _status.TaiXuHuanJingGame.cards.map((i) => game.createCard(i.name, i.suit, i.number, i.nature));
+                            player.directgain(hs1, true, '牌库');
+                        }
+                        var equips0 = [];
+                        var equips1 = [];
+                        var equips2 = [];
+                        var equips3 = [];
+                        for (var i = 0; i < txhjPack.cardPack.length; i++) {
+                            equips0.push(txhjPack.cardPack[i].cardID);
+                            var num = get.cardRank(txhjPack.cardPack[i].cardID);
+                            if (num >= 3) {
+                                if (lib.translate[txhjPack.cardPack[i].cardID] && get.type(txhjPack.cardPack[i].cardID) == 'equip') {
+                                    if (get.subtype(txhjPack.cardPack[i].cardID) == 'equip1') {
+                                        equips1.push(txhjPack.cardPack[i].cardID);
+                                    } else if (get.subtype(txhjPack.cardPack[i].cardID) == 'equip2') {
+                                        equips2.push(txhjPack.cardPack[i].cardID);
+                                    } else {
+                                        equips3.push(txhjPack.cardPack[i].cardID);
+                                    }
+                                }
+                            }
+                        }
+                        for (const npc of game.players) {
+                            if (npc != player && npc.exten) {
+                                const exten = npc.exten;
+                                if (exten.maxHp) {
+                                    npc.maxHp += exten.maxHp;
+                                    npc.hp += exten.maxHp;
+                                }
+                                if (exten.cards.length) {
+                                    const hs3 = exten.cards.map((i) => game.createCard(i));
+                                    npc.directgain(hs3);
+                                }
+                                if (exten.skills.length) {
+                                    npc.addSkill(exten.skills);
+                                }
+                                if (exten.equip.length) {
+                                    for (const i of exten.equip) {
+                                        npc.equip(game.createCard(i));
+                                    }
+                                }
+                                if (npc.side == false && lib.config.taixuhuanjing.rank > 1) {
+                                    npc.maxHp++;
+                                    npc.hp++;
+                                }
+                                if (npc.side == false && lib.config.taixuhuanjing.gameplus > 1) {
+                                    var plushp = (lib.config.taixuhuanjing.gameplus + 9) * lib.config.taixuhuanjing.gameplus;
+                                    npc.maxHp += plushp;
+                                    npc.hp += plushp;
+                                    npc.addSkill('liji');
+                                    var zhoumuskill1 = txhjPack.skillRank.randomRemove();
+                                    npc.addSkill(zhoumuskill1.skillID);
+                                    if (lib.config.taixuhuanjing.gameplus > 2) {
+                                        var zhoumuskill2 = txhjPack.skillRank.randomRemove();
+                                        npc.addSkill(zhoumuskill2.skillID);
+                                    }
+                                }
+                                if (npc.side == false && lib.config.taixuhuanjing.rank > 2) {
+                                    npc.addSkill('reyingzi');
+                                    npc.addSkill('mashu');
+                                }
+                                var typelist = ['equip1', 'equip2', 'equip3'];
+                                typelist.randomSort();
+                                if (lib.config.taixuhuanjing.effect == 'huanjingcaoge') {
+                                    var equip = typelist.shift();
+                                    if (equip == 'equip1') {
+                                        var equip1 = equips1.randomGet(1);
+                                        npc.equip(game.createCard(equip1));
+                                        equips1.remove(equip1);
+                                    }
+                                    if (equip == 'equip2') {
+                                        var equip2 = equips2.randomGet(1);
+                                        npc.equip(game.createCard(equip2));
+                                        equips2.remove(equip2);
+                                    }
+                                    if (equip == 'equip3') {
+                                        var equip3 = equips3.randomGet(1);
+                                        npc.equip(game.createCard(equip3));
+                                        equips3.remove(equip3);
+                                    }
+                                } else {
+                                    typelist.remove(typelist.randomGet());
+                                }
+                                if (npc.side == false && lib.config.taixuhuanjing.rank > 3) {
+                                    while (typelist.length) {
+                                        var equip = typelist.shift();
+                                        if (equip == 'equip1') {
+                                            var equip1 = equips1.randomGet(1);
+                                            npc.equip(game.createCard(equip1));
+                                            equips1.remove(equip1);
+                                        }
+                                        if (equip == 'equip2') {
+                                            var equip2 = equips2.randomGet(1);
+                                            npc.equip(game.createCard(equip2));
+                                            equips2.remove(equip2);
+                                        }
+                                        if (equip == 'equip3') {
+                                            var equip3 = equips3.randomGet(1);
+                                            npc.equip(game.createCard(equip3));
+                                            equips3.remove(equip3);
+                                        }
+                                    }
+                                }
+                            }
+                            if (npc != player && lib.config.taixuhuanjing.effect == 'lingqiyiman') {
+                                npc.maxHp += 2;
+                                npc.hp += 2;
+                            } else if (npc != player && lib.config.taixuhuanjing.effect == 'lingqikuijie') {
+                                npc.maxHp -= 1;
+                                npc.hp -= 1;
+                            } else if (game.effectPack[lib.config.taixuhuanjing.effect] && game.effectPack[lib.config.taixuhuanjing.effect].skill.length) {
+                                var skills = game.effectPack[lib.config.taixuhuanjing.effect].skill.slice(0);
+                                for (var ii = 0; ii < skills.length; ii++) {
+                                    if (npc != player && !npc.hasSkill(skills[ii])) {
+                                        npc.addSkill(skills[ii]);
+                                    }
+                                }
+                            }
+                            npc.update();
+                        }
+                        var event1 = _status.TaiXuHuanJingGame.event;
+                        var premise = _status.TaiXuHuanJingGame.premise;
+                        game.messagePopup(`${premise}`);
+                    },
+                },
+            },
             skill: {},
             characterPack: {},
-            translate: {},
+            translate: {
+                enemy: '敌人',
+                friend: '盟友',
+            },
             cardPack: {},
             posmap: {},
         },

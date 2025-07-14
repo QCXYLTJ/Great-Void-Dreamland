@@ -425,9 +425,9 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
 			},
 			txhj_meihuamitan: {
 				id: 'txhj_meihuamitan',
-				name: '♣️密探',
+				name: '♣️️密探',
 				type: 'main',
-				info: '♣️十三袭击了你们等人',
+				info: '♣️️十三袭击了你们等人',
 				text: '',
 				level: 1,
 				chapter: 1,

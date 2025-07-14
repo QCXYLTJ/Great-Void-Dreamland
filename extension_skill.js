@@ -275,7 +275,11 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 				trigger.cancel();
 				const card = trigger.cards[0];
 				if (card) {
-					player.vcardsMap?.equips.push(new lib.element.VCard(card));
+					const vcard = new lib.element.VCard(card);
+					const cardSymbol = Symbol('card');
+					card.cardSymbol = cardSymbol;
+					card[cardSymbol] = vcard;
+					player.vcardsMap?.equips.push(vcard);
 					player.node.equips.appendChild(card);
 					card.style.transform = '';
 					card.node.name2.innerHTML = `${get.translation(card.suit)}${card.number} ${get.translation(card.name)}`;
@@ -438,7 +442,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 					}
 					order = { color: get.color(event.card2) };
 				} else {
-					order = { suit: get.suit(event.card2) };
+					order = { suit: event.card2.suit };
 				}
 				player
 					.chooseToDiscard(order, function (card) {
@@ -499,7 +503,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 							if (
 								!target.countCards('h', (card) => {
 									return player.countCards('h', (card2) => {
-										return get.suit(card2) == get.suit(card);
+										return card2.suit == card.suit;
 									});
 								})
 							) {
@@ -540,11 +544,6 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 							name: card ? card.name : null,
 							target: target,
 							card: card,
-						}) ||
-						player.hasSkillTag('unequip', false, {
-							name: card ? card.name : null,
-							target: target,
-							card: card,
 						})
 					)
 						return;
@@ -567,7 +566,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 				'step 0';
 				event.count = 1;
 				('step 1');
-				var suit = get.suit(trigger.card);
+				var suit = trigger.card.suit;
 				var num = trigger.target.countCards('h', 'shan');
 				var next = trigger.target
 					.chooseToDiscard('弃置一张牌,或不能响应' + get.translation(trigger.card), 'he')
@@ -575,7 +574,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 						var num = _status.event.num;
 						if (num == 0) return 0;
 						if (card.name == 'shan') return num > 1 ? 2 : 0;
-						return (get.suit(card) != _status.event.suit ? 9 : 6) - get.value(card);
+						return (card.suit != _status.event.suit ? 9 : 6) - get.value(card);
 					})
 					.set('num', num);
 				if (lib.suit.includes(suit)) {
@@ -585,7 +584,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 				('step 2');
 				if (result.bool) {
 					var card = result.cards[0];
-					if (get.suit(card, trigger.target) == get.suit(trigger.card, false) && get.position(card) == 'd') {
+					if (card.suit == trigger.card.suit && get.position(card) == 'd') {
 						player.gain(card, 'gain2');
 					} else {
 						if (lib.config.taixuhuanjing.buff.includes('buff_txhj_shenhanxueyin') && player == game.me) {
@@ -886,7 +885,6 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 				var next = player.chooseToDiscard(get.prompt('guanshi'), num, 'he', function (card) {
 					return _status.event.player.getEquip('guanshi') != card;
 				});
-				next.logSkill = 'guanshi_skill';
 				next.set('ai', function (card) {
 					var evt = _status.event.getTrigger();
 					if (get.attitude(evt.player, evt.target) < 0) {
@@ -1012,7 +1010,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 					event.goto(1);
 				}
 				('step 1');
-				player.chooseToDiscard('h', get.prompt('yitianjian'), '弃置一张手牌并回复1点体力').set('ai', (card) => 7 - get.value(card)).logSkill = 'yitianjian';
+				player.chooseToDiscard('h', get.prompt('yitianjian'), '弃置一张手牌并回复1点体力').set('ai', (card) => 7 - get.value(card));
 				('step 2');
 				if (result.bool) player.recover();
 			},
@@ -1088,7 +1086,6 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 						card: trigger.card,
 					})
 				);
-				next.logSkill = [event.name, trigger.player];
 				('step 2');
 				if (result.bool) trigger.num++;
 				else player.storage.counttrigger.pyzhuren_diamond--;
@@ -2462,23 +2459,23 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 			filter(event, player) {
 				if (_status.currentPhase != player&&player!=game.me) return false;
 				if (_status.currentPhase != player&&player==game.me) return false;
-				var suit = get.suit(event.card, 'heart');
+				var suit = event.card.suit;
 				var suits = [];
 				var cards = player.getCards("e");
 				if (Array.isArray(cards)) for (var i of cards) {
-					if (get.subtype(i) == "equip3" || get.subtype(i) == "equip4") suits.push(get.suit(i));
+					if (get.subtype(i) == "equip3" || get.subtype(i) == "equip4") suits.push(i.suit);
 				}
 				 if(player!=game.me&&player.getEquip('txhj_xuwangzhimian'))
-				  return suits.includes(get.suit(event.card)) && player.getHistory('custom', function(evt) {
+				  return suits.includes(event.card.suit) && player.getHistory('custom', function(evt) {
 					return evt.jufuxionghao_name == suit;
 				}).length == 0;
-				  return lib.config.taixuhuanjing.buff.includes('buff_txhj_jufuxionghao')&&player==game.me&&suits.includes(get.suit(event.card)) && player.getHistory('custom', function(evt) {
+				  return lib.config.taixuhuanjing.buff.includes('buff_txhj_jufuxionghao')&&player==game.me&&suits.includes(event.card.suit) && player.getHistory('custom', function(evt) {
 					return evt.jufuxionghao_name == suit;
 			}).length == 0;
 			},
 			content() {
 				'step 0'
-				event.suit = get.suit(trigger.card, 'heart');
+				event.suit = trigger.card.suit;
 				game.log(player, '触发了【巨富雄豪】');
 				if (player.buff&&player==game.me) {
 					player.buff.buff_txhj_jufuxionghao.update();
@@ -2788,7 +2785,6 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 				});
 			}
 			player.storage.txhj_mowangdejianiang++;
-			player.syncStorage('txhj_mowangdejianiang');
 			player.markSkill('txhj_mowangdejianiang');
 			if (player.buff) {
 				player.buff.buff_txhj_mowangdejianiang.update();
@@ -2986,7 +2982,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 			if (player.buff) {
 				player.buff.buff_txhj_huangtianyili.update();
 			}
-			game.log('【黄天已立】:', player, '的判定结果视为♠️️');
+			game.log('【黄天已立】:', player, '的判定结果视为♠️️️');
 			trigger.fixedResult.suit = 'spade';
 			trigger.fixedResult.color = get.color({ suit: 'spade' });
 		},
@@ -3006,7 +3002,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 			if (player.buff) {
 				player.buff.buff_txhj_huangtianzhizu.update();
 			}
-			game.log('【黄天之诅】:', player, '的判定结果视为♠️<b>5</b>️');
+			game.log('【黄天之诅】:', player, '的判定结果视为♠️️<b>5</b>️');
 			trigger.fixedResult = {
 				suit: 'spade',
 				color: get.color({ suit: 'spade' }),
@@ -3180,8 +3176,8 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		},
 		forced: true,
 		filter(event, player) {
-			if (event.player.isEnemyOf(game.me)) return false;
-			return event.player.isFriendOf(game.me);
+			if (event.player.isEnemiesOf(game.me)) return false;
+			return event.player.isFriendsOf(game.me);
 		},
 		content() {
 			trigger.num++;
@@ -3213,7 +3209,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		},
 		forced: true,
 		mark: true,
-		marktext: '♥️️️',
+		marktext: '♥️️️️',
 		intro: {
 			name: '洛神绝章',
 			content: '本回合已触发【洛神绝章】,下一轮开始时重置次数.',
@@ -3227,7 +3223,6 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		init(player, skill) {
 			game.log(player, '获得了【魔王的佳酿】');
 			player.storage.txhj_mowangdejianiang = 0;
-			player.syncStorage('txhj_mowangdejianiang');
 			player.markSkill('txhj_mowangdejianiang');
 		},
 		onremove(player, skill) {
@@ -3268,7 +3263,6 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		content() {
 			var a = player.storage.txhj_mowangdejianiang;
 			player.storage.txhj_mowangdejianiang -= a;
-			player.syncStorage('txhj_mowangdejianiang');
 			player.unmarkSkill('txhj_mowangdejianiang');
 		},
 	};
@@ -3349,7 +3343,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 			if (player.buff) {
 				player.buff.buff_txhj_yanlihongyan.update();
 			} //QQQ
-			game.log('【艳丽红颜】:', player, '的判定结果视为♥️️️');
+			game.log('【艳丽红颜】:', player, '的判定结果视为♥️️️️');
 			trigger.fixedResult.suit = 'heart';
 			trigger.fixedResult.color = get.color({ suit: 'heart' });
 		},
@@ -3528,7 +3522,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		forced: true,
 		preHidden: true,
 		filter(event, player) {
-			return get.type(event.card) == 'basic' && event.card.isCard && player == game.me && lib.config.taixuhuanjing.buff.includes('buff_txhj_yongguansanjun');
+			return get.type(event.card) == 'basic' && player == game.me && lib.config.taixuhuanjing.buff.includes('buff_txhj_yongguansanjun');
 		},
 		content() {
 			player.gain(
@@ -3748,7 +3742,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 			if (player.buff) {
 				player.buff.buff_txhj_dushidemiyan.update();
 			}
-			game.log('【毒仕的迷烟】:', player, '的判定结果视为♣️️<b>4</b>️');
+			game.log('【毒仕的迷烟】:', player, '的判定结果视为♣️️️<b>4</b>️');
 			trigger.fixedResult = {
 				suit: 'club',
 				color: get.color({ suit: 'club' }),
@@ -4111,7 +4105,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		forced: true,
 		mode: ['taixuhuanjing'],
 		filter(event, player) {
-			return get.number(event.card) == 13 && event.card.name == 'sha' && player == game.me && lib.config.taixuhuanjing.buff.includes('buff_txhj_linjunduizhen');
+			return event.card.number == 13 && event.card.name == 'sha' && player == game.me && lib.config.taixuhuanjing.buff.includes('buff_txhj_linjunduizhen');
 		},
 		content() {
 			game.log(player, '触发了【临军对阵】');
@@ -4530,11 +4524,10 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 					result.cards[0] = result.cards[0].relatedCard;
 					var cardx = result.cards[0];
 					result.card = {
-						name: get.name(card2),
-						suit: get.suit(card2),
-						number: get.number(card2),
+						name: card2.name,
+						suit: card2.suit,
+						number: card2.number,
 						nature: get.nature(card2),
-						isCard: true,
 						cardid: cardx.cardid,
 						wunature: cardx.wunature,
 						storage: cardx.storage,
@@ -4818,7 +4811,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 			var suits = [];
 			var types = [];
 			for (var i = 0; i < history.length; i++) {
-				var suit = get.suit(history[i].card);
+				var suit = history[i].card.suit;
 				if (suit) suits.add(suit);
 				types.add(get.type(history[i].card));
 			}
@@ -4921,7 +4914,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		},
 	};
 	lib.translate.olshanjia = '缮甲';
-	lib.translate.olshanjia_info = '出牌阶段开始时,你可以摸三张牌,然后弃置3-X张牌(X为你本局游戏内失去过的装备牌的数目且至多为3).若你没有以此法弃置基本牌或锦囊牌,则你可以视为使用了一张不计入出牌阶段使用次数的【杀】.';
+	lib.translate.olshanjia_info = '出牌阶段开始时,你可以摸三张牌,弃置3-X张牌(X为你本局游戏内失去过的装备牌的数目且至多为3).若你没有以此法弃置基本牌或锦囊牌,则你可以视为使用了一张不计入出牌阶段使用次数的【杀】.';
 	//玄雷,搬运自对战断狱仲达
 	lib.skill.boss_xuanlei = {
 		audio: true,
@@ -4929,13 +4922,13 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		forced: true,
 		filter(event, player) {
 			return game.hasPlayer(function (current) {
-				return current.isEnemyOf(player) && current.countCards('j');
+				return current.isEnemiesOf(player) && current.countCards('j');
 			});
 		},
 		content() {
 			'step 0';
 			event.targets = game.filterPlayer(function (current) {
-				return current.isEnemyOf(player) && current.countCards('j');
+				return current.isEnemiesOf(player) && current.countCards('j');
 			});
 			event.targets.sort(lib.sort.seat);
 			player.line(event.targets, 'thunder');
@@ -5031,7 +5024,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 			('step 1');
 			if (get.color(event.cards[0]) != get.color(event.cards[1])) {
 				player.chooseTarget('是否令一名敌方角色失去1点体力？', function (card, player, target) {
-					return !target.isFriendOf(player);
+					return target.isEnemiesOf(player);
 				}).ai = function (target) {
 					return -get.attitude(player, target);
 				};
@@ -5050,7 +5043,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		},
 	};
 	lib.translate.boss_lingfeng = '灵锋';
-	lib.translate.boss_lingfeng_info = '摸牌阶段,你可以改为亮出牌堆顶的两张牌,然后获得之,若这些牌的颜色不同,你令一名敌方角色失去1点体力.';
+	lib.translate.boss_lingfeng_info = '摸牌阶段,你可以改为亮出牌堆顶的两张牌,获得之,若这些牌的颜色不同,你令一名敌方角色失去1点体力.';
 	//殷富,搬运自缘之空的个人扩展
 	//开黑节地主的新增技能,懂的都懂,大鬼的最爱
 	lib.skill.dz_gs_yinfu = {
@@ -5079,7 +5072,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 			'step 0';
 			player.chooseTarget(get.prompt('boss_leili'), function (card, player, target) {
 				if (target == trigger.player) return false;
-				return target.isEnemyOf(player);
+				return target.isEnemiesOf(player);
 			}).ai = function (target) {
 				return get.damageEffect(target, player, player, 'thunder');
 			};
@@ -5103,7 +5096,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		content() {
 			'step 0';
 			player.chooseTarget(get.prompt('boss_fengxing'), function (card, player, target) {
-				if (target.isFriendOf(player)) return false;
+				if (target.isFriendsOf(player)) return false;
 				return lib.filter.targetEnabled({ name: 'sha' }, player, target);
 			}).ai = function (target) {
 				return get.effect(target, { name: 'sha' }, player);
@@ -5125,7 +5118,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		trigger: { player: 'phaseUseBegin' },
 		content() {
 			var list = game.filterPlayer(function (current) {
-				return player.canUse('nanman', current) && current.isEnemyOf(player);
+				return player.canUse('nanman', current) && current.isEnemiesOf(player);
 			});
 			list.sort(lib.sort.seat);
 			player.useCard({ name: 'nanman' }, list);
@@ -5152,7 +5145,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		},
 	};
 	lib.translate.boss_xixing = '吸星';
-	lib.translate.boss_xixing_info = '准备阶段,对任意一名横置的其他角色造成1点雷电伤害,然后回复1点体力.';
+	lib.translate.boss_xixing_info = '准备阶段,对任意一名横置的其他角色造成1点雷电伤害,回复1点体力.';
 	//魔炎,搬运自boss罗刹
 	lib.skill.boss_moyany = {
 		trigger: { player: 'loseEnd' },
@@ -5230,7 +5223,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 			'step 0';
 			event.forceDie = true;
 			player.chooseTarget(get.prompt('boss_tianyun'), function (card, player, target) {
-				return target.isEnemyOf(player);
+				return target.isEnemiesOf(player);
 			}).ai = function (target) {
 				if (player.hp <= 1) return 0;
 				if (get.attitude(player, target) > -3) return 0;
@@ -5264,7 +5257,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		},
 	};
 	lib.translate.boss_tianyun = '天陨';
-	lib.translate.boss_tianyun_info = '结束阶段,你可以失去1点体力,然后令一名敌方角色随机受到2~3点火焰伤害并弃置其装备区里的所有牌.';
+	lib.translate.boss_tianyun_info = '结束阶段,你可以失去1点体力,令一名敌方角色随机受到2~3点火焰伤害并弃置其装备区里的所有牌.';
 	//魔道,搬运自boss罗刹、夜叉及法轮王
 	lib.skill.boss_modao = {
 		trigger: { player: 'phaseZhunbeiBegin' },
@@ -5314,7 +5307,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 				trigger: { player: 'useCard' },
 				forced: true,
 				filter(event, player) {
-					return player == _status.currentPhase && player.countMark('txhj_suzhi_count') < 3 && event.card.isCard && get.type2(event.card) == 'trick';
+					return player == _status.currentPhase && player.countMark('txhj_suzhi_count') < 3 && get.type2(event.card) == 'trick';
 				},
 				content() {
 					player.draw();
@@ -5332,11 +5325,8 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 				},
 				logTarget: 'player',
 				content() {
-					'step 0';
 					player.addTempSkill('txhj_suzhi_count');
 					player.addMark('txhj_suzhi_count', 1, false);
-					if (trigger.delay == false) game.delay();
-					('step 1');
 					player.gainPlayerCard(trigger.player, 'he', true);
 				},
 			},
@@ -5351,7 +5341,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		audio: 2,
 		trigger: { global: 'phaseDrawBegin' },
 		filter(event, player) {
-			if (event.player.isFriendOf(player)) {
+			if (event.player.isFriendsOf(player)) {
 				return false;
 			}
 			return event.num > 0 && event.player != player && event.player.hp < event.player.maxHp;
@@ -5373,7 +5363,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		trigger: { player: 'phaseUseBegin' },
 		content() {
 			var list = game.filterPlayer(function (current) {
-				return player.canUse('wanjian', current) && current.isEnemyOf(player);
+				return player.canUse('wanjian', current) && current.isEnemiesOf(player);
 			});
 			list.sort(lib.sort.seat);
 			player.useCard({ name: 'wanjian' }, list);
@@ -5393,7 +5383,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 			('step 1');
 			if (event.players.length) {
 				var current = event.players.shift();
-				if (current.isEnemyOf(player)) {
+				if (current.isEnemiesOf(player)) {
 					player.line(current, 'fire');
 					current.damage('fire');
 				}
@@ -5424,7 +5414,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		content() {
 			'step 0';
 			var targets = game.filterPlayer(function (current) {
-				return current.isEnemyOf(player);
+				return current.isEnemiesOf(player);
 			});
 			targets.sort(lib.sort.seat);
 			event.targets = targets;
@@ -5447,7 +5437,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		},
 	};
 	lib.translate.boss_skonghun = '控魂';
-	lib.translate.boss_skonghun_info = '出牌阶段开始时,若你已损失体力值不小于敌方角色数,你可以对所有敌方角色各造成1点雷电伤害,然后你恢复X点体力(X为受到伤害的角色数).';
+	lib.translate.boss_skonghun_info = '出牌阶段开始时,若你已损失体力值不小于敌方角色数,你可以对所有敌方角色各造成1点雷电伤害,你恢复X点体力(X为受到伤害的角色数).';
 	//筑围,搬运自国战陆抗
 	lib.skill.txhj_zhuwei = {
 		audio: 'zhuwei',
@@ -5473,7 +5463,6 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 					target.addTempSkill('txhj_zhuwei_eff');
 					target.storage.txhj_zhuwei_eff = 1;
 				} else target.storage.txhj_zhuwei_eff++;
-				target.updateMarks();
 			}
 		},
 		subSkill: {
@@ -5497,7 +5486,7 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		},
 	};
 	lib.translate.txhj_zhuwei = '筑围';
-	lib.translate.txhj_zhuwei_info = '当你的判定牌生效后,你可以获得之.然后,你可令当前回合角色本回合内使用【杀】的次数上限和手牌上限+1.';
+	lib.translate.txhj_zhuwei_info = '当你的判定牌生效后,你可以获得之.你可令当前回合角色本回合内使用【杀】的次数上限和手牌上限+1.';
 	//震怒,本体没技能,因为技能简单所以萌新自己抄了抄其他技能的写法
 	lib.skill.boss_zhennu = {
 		trigger: { player: 'phaseZhunbeiBegin' },
@@ -5618,5 +5607,5 @@ window.txhjModeImport(function (lib, game, ui, get, ai, _status, config) {
 		},
 	};
 	lib.translate.txhj_chuhai = '除害';
-	lib.translate.txhj_chuhai_info = '出牌阶段限一次,你可以摸一张牌,然后和一名其他角色拼点.若你赢,则你观看其手牌,并从牌堆/弃牌堆中获得其手牌中包含的类型的牌各一张,且当你于此阶段内对其造成伤害后,你将牌堆/弃牌堆中的一张装备牌置于你的一个空置装备栏内.';
+	lib.translate.txhj_chuhai_info = '出牌阶段限一次,你可以摸一张牌,和一名其他角色拼点.若你赢,则你观看其手牌,并从牌堆/弃牌堆中获得其手牌中包含的类型的牌各一张,且当你于此阶段内对其造成伤害后,你将牌堆/弃牌堆中的一张装备牌置于你的一个空置装备栏内.';
 });

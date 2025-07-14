@@ -678,7 +678,7 @@
     },
     buff_txhj_huangtianyili: {
         name: '黄天已立',
-        info: '你的判定结果花色视为♠️.',
+        info: '你的判定结果花色视为♠️️.',
         rank: 2,
         value: 400,
         store: true,
@@ -687,7 +687,7 @@
     },
     buff_txhj_huangtianzhizu: {
         name: '黄天之诅',
-        info: '你的判定结果视为♠️ 5 .',
+        info: '你的判定结果视为♠️️ 5 .',
         rank: 2,
         value: 400,
         store: true,
@@ -733,7 +733,7 @@
     //魔改buff
     buff_txhj_yanlihongyan: {
         name: '艳丽红颜',
-        info: '你的判定结果花色视为♥️.',
+        info: '你的判定结果花色视为♥️️.',
         rank: 2,
         value: 370,
         store: true,
@@ -897,7 +897,7 @@
     },
     buff_txhj_dushidemiyan: {
         name: '毒仕的迷烟',
-        info: '你的判定结果视为♣️4 .',
+        info: '你的判定结果视为♣️️4 .',
         rank: 1,
         value: 200,
         store: true,
@@ -1813,7 +1813,7 @@
     },
     txhj_jinwuSkill2: {
         name: '三足',
-        info: '你的手牌上限等于体力上限.每回合每种类型限一次,当你使用牌后,你失去1点体力,然后摸X张牌.(X为你已损失的体力值且最大为9).',
+        info: '你的手牌上限等于体力上限.每回合每种类型限一次,当你使用牌后,你失去1点体力,摸X张牌.(X为你已损失的体力值且最大为9).',
         rank: 3,
         value: 999,
         store: false,
@@ -1885,7 +1885,7 @@
     },
     txhj_niuniuSkill2: {
         name: '兕袭',
-        info: '每回合限一次,当你获得其他角色的牌时进行判定:若为♥️,你回复一点体力并获得判定牌;不为♥️,你对其造成1点伤害.',
+        info: '每回合限一次,当你获得其他角色的牌时进行判定:若为♥️️,你回复一点体力并获得判定牌;不为♥️️,你对其造成1点伤害.',
         rank: 3,
         value: 999,
         store: false,

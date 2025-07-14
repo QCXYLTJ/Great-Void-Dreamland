@@ -483,7 +483,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                     } else {
                         target
                             .chooseToUse(`对${get.translation(event.addedTarget)}使用一张杀,或者你失去一点体力`, function (card, player) {
-                                if (get.name(card) != 'sha') return false;
+                                if (card.name != 'sha') return false;
                                 return lib.filter.filterCard.apply(this, arguments);
                             })
                             .set('targetRequired', true)
@@ -1170,7 +1170,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                             player
                                 .chooseControl()
                                 .set('prompt', '继往开来:请选择一项')
-                                .set('choiceList', ['弃置所有手牌,然后摸等量的牌', '将所有手牌当做一张普通锦囊牌使用'])
+                                .set('choiceList', ['弃置所有手牌,摸等量的牌', '将所有手牌当做一张普通锦囊牌使用'])
                                 .set('ai', function () {
                                     if (_status.event.player.countCards('h') > 2) return 0;
                                     return 1;
@@ -1477,7 +1477,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                     if (target.hasSha()) {
                         target.chooseToUse(
                             function (card, player, event) {
-                                return get.name(card) == 'sha' && lib.filter.filterCard.apply(this, arguments);
+                                return card.name == 'sha' && lib.filter.filterCard.apply(this, arguments);
                             },
                             `使用一张杀,或交给${get.translation(player)}两张牌`
                         );
@@ -1628,8 +1628,8 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                 content() {
                     'step 0';
                     target.judge(function (card) {
-                        if (get.suit(card) == 'club' && target.hp < target.maxHp) return 9;
-                        if (get.suit(card) == 'club' && target.hp >= target.maxHp) return 0;
+                        if (card.suit == 'club' && target.hp < target.maxHp) return 9;
+                        if (card.suit == 'club' && target.hp >= target.maxHp) return 0;
                         return 1;
                     });
                     ('step 1');
@@ -1779,7 +1779,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                     if (Array.isArray(cards))
                         for (var i of cards) {
                             if (!lib.filter.cardDiscardable(card, target, 'txhj_shuiyan')) continue;
-                            if (get.number(i)) num += get.number(i);
+                            if (i.number) num += i.number;
                         }
                     if (num < 6) {
                         var next = target.damage(event.baseDamage || 1);
@@ -1800,7 +1800,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                         var sum = 0;
                         if (Array.isArray(ui.selected.cards))
                             for (var i of ui.selected.cards) {
-                                sum += get.number(i);
+                                sum += i.number;
                             }
                         if (sum >= 6) return [ui.selected.cards.length, Infinity];
                         return ui.selected.cards.length + 2;
@@ -1819,7 +1819,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                                 }
                                 var numx = 0;
                                 for (var k of array) {
-                                    numx += get.number(k);
+                                    numx += k.number;
                                 }
                                 if (numx == num) list.push(array);
                             }
@@ -2197,7 +2197,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                 filterCard(card, player) {
                     return card != player.getEquip(5);
                 },
-                prompt: '出牌阶段限一次,你可以弃置至多X张牌(X为你的体力上限),然后摸等量的牌',
+                prompt: '出牌阶段限一次,你可以弃置至多X张牌(X为你的体力上限),摸等量的牌',
             },
             /*赤焰镇魂琴技能*/
             txhj_chiyanzhenhunqin: {
@@ -2318,7 +2318,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                     if (cards.length < 2) return false;
                     var list = [];
                     for (var i of cards) {
-                        list.add(get.suit(i, false));
+                        list.add(i.suit);
                         if (list.length >= 2) return true;
                     }
                     return false;
@@ -2355,7 +2355,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                     mark(dialog, content, player) {
                         var content = player.getExpansions('txzhaoshu_skill');
                         dialog.add(content);
-                        dialog.addText('<br><li>与你相同阵营的角色的出牌阶段限两次,其可以将一张手牌(受伤的角色改为至多两张)置于【诏书】上,称为<应>.<br><li>出牌阶段限两次,若你的<应>中包含至少两种花色,则你可以发动<锦囊召唤>,将所有<应>置入弃牌堆,然后随机获得一张未加入牌堆的额外锦囊牌(洞烛先机、逐近弃远、水淹七军、出其不意).', false);
+                        dialog.addText('<br><li>与你相同阵营的角色的出牌阶段限两次,其可以将一张手牌(受伤的角色改为至多两张)置于【诏书】上,称为<应>.<br><li>出牌阶段限两次,若你的<应>中包含至少两种花色,则你可以发动<锦囊召唤>,将所有<应>置入弃牌堆,随机获得一张未加入牌堆的额外锦囊牌(洞烛先机、逐近弃远、水淹七军、出其不意).', false);
                         var cards = player.getExpansions('txzhaoshu_cards');
                         if (cards.length) {
                             dialog.addAuto(cards);
@@ -2377,7 +2377,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                 filter(event, player) {
                     if (!player.countCards('h')) return false;
                     return game.hasPlayer(function (current) {
-                        return current.hasSkill('txzhaoshu_skill') && current.isFriendOf(player);
+                        return current.hasSkill('txzhaoshu_skill') && current.isFriendsOf(player);
                     });
                 },
                 filterCard: true,
@@ -2394,23 +2394,23 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                         cards = ui.selected.cards.concat(
                             game
                                 .findPlayer(function (current) {
-                                    return current.hasSkill('txzhaoshu_skill') && current.isFriendOf(player);
+                                    return current.hasSkill('txzhaoshu_skill') && current.isFriendsOf(player);
                                 })
                                 .getExpansions('txzhaoshu_cards')
                         ),
-                        suit = get.suit(card, false);
+                        suit = card.suit;
                     for (var i of cards) {
-                        if (get.suit(i) == suit) return 0;
+                        if (i.suit == suit) return 0;
                     }
                     return 5 + player.needsToDiscard() * 1.5 - get.value(card);
                 },
                 filterTarget(card, player, target) {
-                    return target.hasSkill('txzhaoshu_skill') && target.isFriendOf(player);
+                    return target.hasSkill('txzhaoshu_skill') && target.isFriendsOf(player);
                 },
                 selectTarget() {
                     if (
                         game.countPlayer(function (current) {
-                            return current.hasSkill('txzhaoshu_skill') && current.isFriendOf(_status.event.player);
+                            return current.hasSkill('txzhaoshu_skill') && current.isFriendsOf(_status.event.player);
                         }) == 1
                     )
                         return [-1, -1];
@@ -2424,7 +2424,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                         '张手牌置于' +
                         get.translation(
                             game.filterPlayer(function (current) {
-                                return current.hasSkill('txzhaoshu_skill') && current.isFriendOf(player);
+                                return current.hasSkill('txzhaoshu_skill') && current.isFriendsOf(player);
                             })
                         ) +
                         '的【诏书】上'
@@ -2491,7 +2491,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                 content() {
                     'step 0';
                     player.judge(function (card) {
-                        if (get.suit(card) == 'heart' && player.hp < player.maxHp) return 2;
+                        if (card.suit == 'heart' && player.hp < player.maxHp) return 2;
                         return 0;
                     });
                     ('step 1');
@@ -2542,7 +2542,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                 },
                 audio: 'ext:太虚幻境/audio/card:1',
                 check(event, player) {
-                    var att = ai.get.attitude(player, event.target);
+                    var att = get.attitude(player, event.target);
                     if (event.target.hasSkillTag('nothunder')) {
                         return att > 0;
                     }
@@ -2626,8 +2626,8 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                         return get.distance(player, target, 'attack') <= 1;
                     }).ai = function (target) {
                         var player = _status.event.player;
-                        if (ai.get.attitude(_status.event.player, target) > 0) return 0;
-                        if (ai.get.attitude(_status.event.player, target) < 0 && target.num('h') <= 5) return 7 - target.num('h');
+                        if (get.attitude(_status.event.player, target) > 0) return 0;
+                        if (get.attitude(_status.event.player, target) < 0 && target.num('h') <= 5) return 7 - target.num('h');
                         return 1;
                     };
                     ('step 1');
@@ -2643,11 +2643,11 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                             return true;
                         })
                         .set('ai', function (card) {
-                            if (ai.get.attitude(_status.event.player, _status.event.parent.player) > 0) {
-                                return 11 - ai.get.value(card);
+                            if (get.attitude(_status.event.player, _status.event.parent.player) > 0) {
+                                return 11 - get.value(card);
                             }
-                            if (ai.get.attitude(_status.event.player, _status.event.parent.player) <= 0) {
-                                return 9 - ai.get.value(card);
+                            if (get.attitude(_status.event.player, _status.event.parent.player) <= 0) {
+                                return 9 - get.value(card);
                             }
                         });
                     ('step 2');
@@ -2806,7 +2806,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                     };
                     ('step 1');
                     if (result.bool) {
-                        player.chooseUseTarget(result.links[0][2], true, false).logSkill = event.name;
+                        player.chooseUseTarget(result.links[0][2], true, false);
                     }
                 },
             },
@@ -3049,7 +3049,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                     result: {
                         target(player, target) {
                             if (player.hasSkill('jiu') && !target.num('e', 'baiyin')) {
-                                if (ai.get.attitude(player, target) > 0) {
+                                if (get.attitude(player, target) > 0) {
                                     return -6;
                                 } else {
                                     return -3;
@@ -3090,7 +3090,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
                 },
                 audio: true,
                 check(event, player) {
-                    if (ai.get.damageEffect(player, event.player, player) >= 0) return false;
+                    if (get.damageEffect(player, event.player, player) >= 0) return false;
                     return true;
                 },
                 content() {
@@ -3208,46 +3208,46 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
             txhj_baihu: '白鹄',
             txhj_baihu_info: '锁定技,其他角色计算与你的距离+1',
             txhj_shengdong: '声东击西',
-            txhj_shengdong_info: "出牌阶段,你可以选择一名其他角色并交给其一张手牌,然后其将两张手牌交给你指定的另一名角色.<span class='bluetext' style='color:gray'>(可重铸)</span>",
+            txhj_shengdong_info: "出牌阶段,你可以选择一名其他角色并交给其一张手牌,其将两张手牌交给你指定的另一名角色.<span class='bluetext' style='color:gray'>(可重铸)</span>",
             txhj_shuiyan: '水淹七军',
             txhj_shuiyan_info: '出牌阶段,对一名其他角色使用.除非目标角色弃置任意张点数之和大于等于6的装备牌,否则其受到一点雷电伤害.',
             txhj_lingbaoxianhu: '灵宝仙壶',
-            txhj_lingbaoxianhu_info: `锁定技,当你造成点数大于1的伤害后,或有其他角色死亡后,你加1点体力上限并回复1点体力.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=${lib.assetURL}extension/太虚幻境/image/buff/buff_txhj_xianhujiqu.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>仙葫汲取</span><br><span class='bluetext' style='color:gold'>战斗结束后,若你的体力上限大于战斗前的体力上限,则继承结束后的体力上限.</span>`,
+            txhj_lingbaoxianhu_info: `锁定技,当你造成点数大于1的伤害后,或有其他角色死亡后,你加1点体力上限并回复1点体力.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=extension/太虚幻境/image/buff/buff_txhj_xianhujiqu.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>仙葫汲取</span><br><span class='bluetext' style='color:gold'>战斗结束后,若你的体力上限大于战斗前的体力上限,则继承结束后的体力上限.</span>`,
             txhj_chongyingshenfu: '冲应神符',
-            txhj_chongyingshenfu_info: `锁定技,当你受到一种牌造成的伤害后,本局相同牌名的牌对你造成的伤害-1.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=${lib.assetURL}extension/太虚幻境/image/buff/buff_txhj_shenfuhuaxie.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>神符化邪</span><br><span class='bluetext' style='color:gold'>当你受到伤害后,你获得造成伤害的牌.</span>`,
+            txhj_chongyingshenfu_info: `锁定技,当你受到一种牌造成的伤害后,本局相同牌名的牌对你造成的伤害-1.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=extension/太虚幻境/image/buff/buff_txhj_shenfuhuaxie.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>神符化邪</span><br><span class='bluetext' style='color:gold'>当你受到伤害后,你获得造成伤害的牌.</span>`,
             txhj_caomu: '草木皆兵',
             txhj_caomu_info: '出牌阶段,对一名其他角色使用,目标角色弃置一张牌,与其距离为一的角色各摸一张牌.',
             txhj_chiyanzhenhunqin: '赤焰镇魂琴',
-            txhj_chiyanzhenhunqin_info: `锁定技,你造成的伤害均视为具有火属性.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=${lib.assetURL}extension/太虚幻境/image/buff/buff_txhj_yanhuozhiren.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>焱火之刃</span><br><span class='bluetext' style='color:gold'>若你的装备区内有武器牌,你造成的火焰伤害+1.</span>`,
+            txhj_chiyanzhenhunqin_info: `锁定技,你造成的伤害均视为具有火属性.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=extension/太虚幻境/image/buff/buff_txhj_yanhuozhiren.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>焱火之刃</span><br><span class='bluetext' style='color:gold'>若你的装备区内有武器牌,你造成的火焰伤害+1.</span>`,
             txhj_diaohu: '调虎离山',
-            txhj_diaohu_info: '出牌阶段,对一名其他角色使用,目标角色翻面,然后你与其各摸一张牌.',
+            txhj_diaohu_info: '出牌阶段,对一名其他角色使用,目标角色翻面,你与其各摸一张牌.',
             txhj_dinglanyemingzhu: '定澜夜明珠',
-            txhj_dinglanyemingzhu_info: '出牌阶段限一次,你可以弃置至多X张牌(X为你的体力上限),然后摸等量的牌.',
+            txhj_dinglanyemingzhu_info: '出牌阶段限一次,你可以弃置至多X张牌(X为你的体力上限),摸等量的牌.',
             txhj_feilong: '飞龙夺凤',
-            txhj_feilong_info: `当你杀死角色后,若对局未结束,你令其复活成为你的队友并将体力和体力上限调整至3.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=${lib.assetURL}extension/太虚幻境/image/buff/buff_txhj_pozhenzhifeng.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>破阵之锋</span><br><span class='bluetext' style='color:gold'>出牌阶段,若你的装备区内有武器牌,敌方角色的防具无效.</span>`,
+            txhj_feilong_info: `当你杀死角色后,若对局未结束,你令其复活成为你的队友并将体力和体力上限调整至3.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=extension/太虚幻境/image/buff/buff_txhj_pozhenzhifeng.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>破阵之锋</span><br><span class='bluetext' style='color:gold'>出牌阶段,若你的装备区内有武器牌,敌方角色的防具无效.</span>`,
             txhj_feilong_skill: '飞龙夺凤',
             txhj_guofengyupao: '国风玉袍',
-            txhj_guofengyupao_info: `锁定技,你不能成为其他角色使用普通锦囊牌的目标.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=${lib.assetURL}extension/太虚幻境/image/buff/buff_txhj_juejingzhice.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>绝境之策</span><br><span class='bluetext' style='color:gold'>当你使用[闪]后,若你没有手牌,你摸两张牌.</span>`,
+            txhj_guofengyupao_info: `锁定技,你不能成为其他角色使用普通锦囊牌的目标.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=extension/太虚幻境/image/buff/buff_txhj_juejingzhice.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>绝境之策</span><br><span class='bluetext' style='color:gold'>当你使用[闪]后,若你没有手牌,你摸两张牌.</span>`,
             txhj_huoshaolianying: '火烧连营',
-            txhj_huoshaolianying_info: '出牌阶段,对你的下家使用,其受到1点火焰伤害.若其下家与其阵营相同,则其下家也受到1点火焰伤害,然后重复此流程.',
+            txhj_huoshaolianying_info: '出牌阶段,对你的下家使用,其受到1点火焰伤害.若其下家与其阵营相同,则其下家也受到1点火焰伤害,重复此流程.',
             txhj_jiedao: '借刀杀人',
             txhj_jiedao_info: '出牌阶段,对一名其他角色使用,除非其对其攻击范围由你选择的另一名角色使用一张【杀】,否则其失去一点体力.',
             txhj_juechenjinge: '绝尘金戈',
-            txhj_juechenjinge_info: `其他角色计算与你距离+2;其他角色计算与己方其他角色距离+1.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=${lib.assetURL}extension/太虚幻境/image/buff/buff_txhj_wuzhongshengshan.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>无中生闪</span><br><span class='bluetext' style='color:gold'>结束阶段,你从牌堆或弃牌堆中获得一张[闪]</span>`,
+            txhj_juechenjinge_info: `其他角色计算与你距离+2;其他角色计算与己方其他角色距离+1.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=extension/太虚幻境/image/buff/buff_txhj_wuzhongshengshan.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>无中生闪</span><br><span class='bluetext' style='color:gold'>结束阶段,你从牌堆或弃牌堆中获得一张[闪]</span>`,
             txhj_leijimu: '雷击木',
             txhj_leijimu_info: '你使用普通的【杀】时,你可以将此【杀】改为雷【杀】.',
             txhj_liulongcanjia: '六龙骖驾',
-            txhj_liulongcanjia_info: `锁定技,你计算与其他角色的距离-1,其他角色计算与你的距离+1.锁定技,当此牌进入你的装备区时,你弃置你装备区内其他坐骑牌;当此牌在你的装备区内,你不能使用其他坐骑牌(你的装备区便不能置入其他坐骑牌).<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=${lib.assetURL}extension/太虚幻境/image/buff/buff_txhj_wuzhongshengsha.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>无中生杀</span><br><span class='bluetext' style='color:gold'>准备阶段,你从牌堆或弃牌堆中获得一张[杀].</span>`,
+            txhj_liulongcanjia_info: `锁定技,你计算与其他角色的距离-1,其他角色计算与你的距离+1.锁定技,当此牌进入你的装备区时,你弃置你装备区内其他坐骑牌;当此牌在你的装备区内,你不能使用其他坐骑牌(你的装备区便不能置入其他坐骑牌).<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=extension/太虚幻境/image/buff/buff_txhj_wuzhongshengsha.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>无中生杀</span><br><span class='bluetext' style='color:gold'>准备阶段,你从牌堆或弃牌堆中获得一张[杀].</span>`,
             txhj_piliche: '霹雳车',
             txhj_piliche_info: '当你对其他角色造成伤害后,你可令其减少等同伤害值的体力上限.',
             txhj_taijifuchen: '太极拂尘',
-            txhj_taijifuchen_info: `锁定技,当你使用【杀】指定目标后,你令目标角色选择一项:①弃置一张牌,若此牌和【杀】花色相同,则你获得之.②其不可响应此【杀】.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=${lib.assetURL}extension/太虚幻境/image/buff/buff_txhj_fuchendangmo.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>拂尘荡魔</span><br><span class='bluetext' style='color:gold'>当你因武器效果令其他角色弃牌时,弃牌数+1.</span>`,
+            txhj_taijifuchen_info: `锁定技,当你使用【杀】指定目标后,你令目标角色选择一项:①弃置一张牌,若此牌和【杀】花色相同,则你获得之.②其不可响应此【杀】.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=extension/太虚幻境/image/buff/buff_txhj_fuchendangmo.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>拂尘荡魔</span><br><span class='bluetext' style='color:gold'>当你因武器效果令其他角色弃牌时,弃牌数+1.</span>`,
             txhj_xuwangzhimian: '虚妄之冕',
-            txhj_xuwangzhimian_info: `锁定技,摸牌阶段,你额外摸两张牌;你的手牌上限-1.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=${lib.assetURL}extension/太虚幻境/image/buff/buff_txhj_shenfuhuaxie.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>神符化邪</span><br><span class='bluetext' style='color:gold'>你受到伤害后,你获得造成伤害的牌.</span>`,
+            txhj_xuwangzhimian_info: `锁定技,摸牌阶段,你额外摸两张牌;你的手牌上限-1.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style=width:63px src=extension/太虚幻境/image/buff/buff_txhj_shenfuhuaxie.png><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-family: shousha;text-align: center'>神符化邪</span><br><span class='bluetext' style='color:gold'>你受到伤害后,你获得造成伤害的牌.</span>`,
             txhj_yiyi: '以逸待劳',
-            txhj_yiyi_info: '出牌阶段,对你和所有友方角色使用,目标依次摸两张,牌然后弃置两张牌.',
+            txhj_yiyi_info: '出牌阶段,对你和所有友方角色使用,目标依次摸两张,牌弃置两张牌.',
             txhj_yuanjiao: '远交近攻',
-            txhj_yuanjiao_info: '出牌阶段,对一名其他角色使用目标角色摸一张牌,然后你摸三张牌.',
+            txhj_yuanjiao_info: '出牌阶段,对一名其他角色使用目标角色摸一张牌,你摸三张牌.',
             txhj_zhijizhibi: '知己知彼',
             txhj_zhijizhibi_info: '对一名有手牌的其他角色使用,你观看目标的手牌并摸一张牌.',
             txhj_fangtianhuaji: '方天画戟',
@@ -3263,7 +3263,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
             txzhaoshu: '诏书',
             txzhaoshu_skill: '锦囊召唤',
             txzhaoshu_global: '诏书',
-            txzhaoshu_info: '<li>出牌阶段,对你自己使用.此牌不可被任何效果弃置或移除,你将此牌置于你的武将牌上.<br><li>与你相同阵营的角色的出牌阶段限两次,其可以将一张手牌(受伤的角色改为至多两张)置于【诏书】上,称为<应>.<br><li>出牌阶段限两次,若你的<应>中包含至少两种花色,则你可以发动<锦囊召唤>:将所有<应>置入弃牌堆,然后随机获得一张未加入牌堆的额外锦囊牌(洞烛先机、逐近弃远、水淹七军、出其不意).',
+            txzhaoshu_info: '<li>出牌阶段,对你自己使用.此牌不可被任何效果弃置或移除,你将此牌置于你的武将牌上.<br><li>与你相同阵营的角色的出牌阶段限两次,其可以将一张手牌(受伤的角色改为至多两张)置于【诏书】上,称为<应>.<br><li>出牌阶段限两次,若你的<应>中包含至少两种花色,则你可以发动<锦囊召唤>:将所有<应>置入弃牌堆,随机获得一张未加入牌堆的额外锦囊牌(洞烛先机、逐近弃远、水淹七军、出其不意).',
             txhj_zhenhunqin: '镇魂琴',
             txhj_zhenhunqin_info: '你可以将你的任一普通【杀】当着雷电伤害的【杀】使用.',
             txhj_xieshenmianju_bg: '邪',
@@ -3273,7 +3273,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
             txhj_shengguangbaiyi: '圣光白衣',
             txhj_shengguangbaiyi_info: '锁定技,红色【杀】对你无效,你的手牌上限+2.',
             txhj_wangmeizhike: '望梅止渴',
-            txhj_wangmeizhike_info: '出牌阶段,对任意一名角色使用该角色立即判定:若结果为♣️,则目标回复一点体力;若不是♣️,摸一张牌.',
+            txhj_wangmeizhike_info: '出牌阶段,对任意一名角色使用该角色立即判定:若结果为♣️️,则目标回复一点体力;若不是♣️️,摸一张牌.',
             txqicaishenlu: '七彩神鹿',
             txqicaishenlu_info: '锁定技,你计算与其他角色的距离时-1,当你造成属性伤害时,你令此伤害+1.',
             txyihuajiemu: '移花接木',
@@ -3299,7 +3299,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
             txyunliangche_info: '锁定技,摸牌阶段,你多摸一张牌;结束阶段,你可以将此装备移动至一名其他角色的装备区里;当你不因移动而失去装备区里的【运粮车】时,你弃置一张牌.',
             txfengxueren: '封雪刃',
             txfengxueren_bg: '雪',
-            txfengxueren_info: '你使用【杀】击中目标后,若目标武将牌正面朝上,你可以防止伤害,然后令目标摸一张牌并翻面.',
+            txfengxueren_info: '你使用【杀】击中目标后,若目标武将牌正面朝上,你可以防止伤害,令目标摸一张牌并翻面.',
             txhj_qixingpao_bg: '袍',
             txhj_qixingpao: '七星袍',
             txhj_qixingpao_info: '锁定技,所有属性伤害对你无效.',
@@ -3323,7 +3323,7 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
             txhj_toushiche_skill: '投石车',
             txhj_toushiche_info: '锁定技,结束阶段开始时,你令所有手牌数大于你的角色依次弃置一张手牌.',
             txhj_jiwangkailai: '继往开来',
-            txhj_jiwangkailai_info: '出牌阶段,对包含你自己在内的一名角色使用.目标角色选择一项:①弃置所有手牌,然后摸等量的牌.②将所有手牌当做一张不为【继往开来】的普通锦囊牌使用.',
+            txhj_jiwangkailai_info: '出牌阶段,对包含你自己在内的一名角色使用.目标角色选择一项:①弃置所有手牌,摸等量的牌.②将所有手牌当做一张不为【继往开来】的普通锦囊牌使用.',
             txhj_diqi: '地契',
             txhj_diqi_skill: '地契',
             txhj_diqi_info: '当你受到伤害时,你可以弃置此牌,防止此伤害.当此牌离开你的装备区后,销毁之.',
@@ -3356,5 +3356,8 @@ game.import('card', function (lib, game, ui, get, ai, _status) {
             }
         }
     }
+    lib.translate.太虚幻境_card_config = '太虚幻境';
+    lib.config.all.cards.add('太虚幻境');
+    lib.config.cards.add('太虚幻境');
     return txhj_cardPack;
 });

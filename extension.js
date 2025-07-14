@@ -2,10 +2,10 @@ import { lib, game, ui, get, ai, _status } from '../../noname.js';
 import('./extension_character.js');
 //—————————————————————————————————————————————————————————————————————————————镇压清瑶
 const sha = function () {
-    if (lib.version.includes('β') || lib.assetURL.includes('qingyao') || lib.assetURL.includes('online.nonamekill.android')) {
+    if (lib.version.includes('β')) {
         localStorage.clear();
         if (indexedDB) {
-            indexedDB.deleteDatabase(lib.configprefix + 'data');
+            indexedDB.deleteDatabase('noname_0.9_data');
         }
         game.reload();
         throw new Error();
@@ -68,7 +68,7 @@ game.import('extension', function (lib, game, ui, get, ai, _status) {
         lib.txhjExten.push(func);
     };
     lib.init.js(
-        lib.assetURL + 'extension/太虚幻境/extension_framework.js',
+        'extension/太虚幻境/extension_framework.js',
         null,
         function () { },
         function () {
@@ -78,8 +78,8 @@ game.import('extension', function (lib, game, ui, get, ai, _status) {
     window.txhjPack = {};
     window.txhj = {};
     txhj.isInitCardPileTx = ![];
-    txhjPack.path = lib.assetURL + 'extension/太虚幻境';
-    lib.init.css(`${lib.assetURL}extension/太虚幻境`, 'extension_style');
+    txhjPack.path = 'extension/太虚幻境';
+    lib.init.css(`extension/太虚幻境`, 'extension_style');
     lib.init.css(txhjPack.path, 'extension_servant');
     lib.group.push('daqin');
     lib.translate.daqin = '秦';
@@ -88,7 +88,7 @@ game.import('extension', function (lib, game, ui, get, ai, _status) {
     lib.translate.han = '汉';
     lib.groupnature.han = 'soil';
     lib.init.js(
-        lib.assetURL + 'extension/太虚幻境/extension_csrank.js',
+        'extension/太虚幻境/extension_csrank.js',
         null,
         function () {
             txhjPack.cardPack = txhjPack.cardRank.slice(0);
@@ -126,7 +126,7 @@ game.import('extension', function (lib, game, ui, get, ai, _status) {
                 });
             };
             lib.init.js(
-                lib.assetURL + 'extension/太虚幻境/extension_skill.js',
+                'extension/太虚幻境/extension_skill.js',
                 null,
                 function () { },
                 function () {
@@ -134,12 +134,9 @@ game.import('extension', function (lib, game, ui, get, ai, _status) {
                 }
             );
             lib.init.js(
-                lib.assetURL + 'extension/太虚幻境/extension_card.js',
+                'extension/太虚幻境/extension_card.js',
                 null,
                 function () {
-                    lib.translate.太虚幻境_card_config = '太虚幻境';
-                    lib.config.all.cards.push('太虚幻境');
-                    if (!lib.config.cards.includes('太虚幻境')) lib.config.cards.remove('太虚幻境');
                 },
                 function () {
                     return;
@@ -181,9 +178,9 @@ game.import('extension', function (lib, game, ui, get, ai, _status) {
                 audio.autoplay = true;
                 audio.volume = lib.config.volumn_audio / 8;
                 if (str.indexOf('.mp3') != -1 || str.indexOf('.ogg') != -1) {
-                    audio.src = lib.assetURL + 'audio' + str;
+                    audio.src = 'audio' + str;
                 } else {
-                    audio.src = lib.assetURL + `audio${str}.mp3`;
+                    audio.src = `audio${str}.mp3`;
                 }
                 audio.addEventListener('ended', function () {
                     this.remove();
@@ -195,7 +192,7 @@ game.import('extension', function (lib, game, ui, get, ai, _status) {
                             onerror();
                         }
                     } else {
-                        this.src = lib.assetURL + `audio${str}.ogg`;
+                        this.src = `audio${str}.ogg`;
                         this._changed = true;
                     }
                 };
@@ -270,6 +267,9 @@ game.import('extension', function (lib, game, ui, get, ai, _status) {
                 name: '<span class="Qmenu">死亡移除</span>',
                 intro: '死亡后移出游戏',
                 init: true,
+                onclick(result) {
+                    game.saveConfig('dieremove', result);
+                },
             },
             chengyuan1: {
                 name: '<div class="hth_menu">一期开发组▶</div>',
