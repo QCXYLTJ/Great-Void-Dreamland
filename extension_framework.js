@@ -1420,16 +1420,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         };
         lib.onresize.push(reChoiceCharactersize);
         var title = ui.create.div('.taixuhuanjing_PointTitle', homeBody);
-        var body = ui.create.div('.taixuhuanjing_PointBody', homeBody);
-        lib.group = lib.group.filter((q) => {
-            for (const i in lib.character) {
-                if (lib.character[i].group == q) {
-                    return true;
-                }
-            }
-            return false;
-        });
-        const grouplist = lib.group.slice(); //QQQ点将全扩
+        const body = ui.create.div('.taixuhuanjing_PointBody', homeBody);
         const groupBody = ui.create.div('.taixuhuanjing_PointGroup', body);
         lib.setScroll(groupBody);
         if (!lib.config.touchscreen && lib.config.mousewheel) {
@@ -1437,96 +1428,13 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
             groupBody._scrollnum = 10;
             groupBody.onmousewheel = ui.click.mousewheel;
         } //水平滚动
-        var playBox = ui.create.div('.taixuhuanjing_PointPlayBox', body);
-        var playBody = ui.create.div('.taixuhuanjing_PointPlayBody', playBox);
+        const playBox = ui.create.div('.taixuhuanjing_PointPlayBox', body);
+        const playBody = ui.create.div('.taixuhuanjing_PointPlayBody', playBox);
         lib.setScroll(playBody);
-        function funcPlay(play) {
-            var div = ui.create.div('.taixuhuanjing_PointPlayDiv');
-            var rankBody = ui.create.div('.taixuhuanjing_characterDivMobileRankBody2', div);
-            var playImp1 = ui.create.div('.taixuhuanjing_ChoiceCharacterPlayImp1', div);
-            var playImp2 = ui.create.div('.taixuhuanjing_ChoiceCharacterPlayImp2', playImp1);
-            var nameText = ui.create.div('.taixuhuanjing_ChoiceCharacterPlayText', playImp1);
-            playImp2.setBackground(play, 'character');
-            nameText.innerHTML = lib.translate[play];
-            var rarity = game.getRarity(play);
-            var star;
-            switch (rarity) {
-                case 'legend':
-                    star = 5;
-                    break;
-                case 'epic':
-                    star = 4;
-                    break;
-                case 'rare':
-                    star = 3;
-                    break;
-                case 'common':
-                    star = 2;
-                    break;
-                default:
-                    star = 1;
-            }
-            //星级修改
-            if (lib.config.mode_config.taixuhuanjing.star && lib.config.mode_config.taixuhuanjing.star != 0) star = lib.config.mode_config.taixuhuanjing.star;
-            while (star--) {
-                var starIcon = ui.create.div('.taixuhuanjing_characterDivMobileStarICON2', rankBody);
-            }
-            div.listen(function (e) {
-                game.txhj_playAudioCall('WinButton', null, true);
-                var skills = get.character(play, 3).slice(0);
-                game.txhj_TrySkillAudio(skills.randomGet(), { name: play }, null, [1, 2].randomGet());
-                _status.choiceCharacter = play;
-                if (playBody.choosingNow) {
-                    playBody.choosingNow.noChoiced();
-                }
-                this.choiced();
-                div.style.boxShadow = '-5px 0px 5px rgba(0,255,0,0.75),0px -5px 5px rgba(0,255,0,0.75),5px 0px 5px rgba(0,255,0,0.75),0px 5px 5px rgba(0,255,0,0.75)';
-                event.cancelBubble = true;
-                event.returnValue = false;
-                return false;
-            });
-            div.oncontextmenu = function (e) {
-                game.txhj_playAudioCall('WinButton', null, true);
-                ui.click.charactercard(play, null, null, true, this);
-                event.cancelBubble = true;
-                event.returnValue = false;
-                return false;
-            };
-            div.choiced = function () {
-                playBody.choosingNow = this;
-                div.style.boxShadow = '-5px 0px 5px rgba(255,255,0,0.75),0px -5px 5px rgba(255,255,0,0.75),5px 0px 5px rgba(255,255,0,0.75),0px 5px 5px rgba(255,255,0,0.75)';
-            };
-            div.noChoiced = function () {
-                playBody.choosingNow = null;
-                div.style.boxShadow = 'none';
-            };
-            div.onmouseover = function () {
-                if (_status.choiceCharacter == undefined || _status.choiceCharacter != play) {
-                    div.style.boxShadow = '-5px 0px 5px rgba(255,255,0,0.75),0px -5px 5px rgba(255,255,0,0.75),5px 0px 5px rgba(255,255,0,0.75),0px 5px 5px rgba(255,255,0,0.75)';
-                }
-            };
-            div.onmouseout = function () {
-                if (_status.choiceCharacter == undefined || _status.choiceCharacter != play) {
-                    div.style.boxShadow = 'none';
-                }
-            };
-            return div;
-        }
-        var playBodyUpdate = function (group) {
-            playBody.innerHTML = '';
-            var playlist = Object.keys(lib.character)
-                .filter((q) => lib.character[q].group == group)
-                .slice(0);
-            while (playlist.length) {
-                var play = playlist.shift();
-                playBody.appendChild(funcPlay(play));
-            }
-        }; //QQQ点将全扩
-        function funcGroup(group) {
+        const packlist = Object.keys(lib.characterPack); //QQQ点将全扩
+        for (const pack of packlist) {
             const div = ui.create.div('.taixuhuanjing_PointGroupDiv'); //QQQ
-            var divName = ui.create.div('.taixuhuanjing_ChoiceCharacterGroupDivName', div);
-            divName.innerHTML = get.translation(group);
-            divName.setBackgroundImage(`extension/太虚幻境/image/style/text_${group}.png`);
+            div.innerHTML = get.translation(pack + '_character_config');
             div.listen(function (e) {
                 game.txhj_playAudioCall('WinButton', null, true);
                 if (groupBody.choosingNow) {
@@ -1534,7 +1442,80 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 }
                 this.choiced();
                 _status.choiceCharacter = undefined;
-                playBodyUpdate(group);
+                playBody.innerHTML = '';
+                const playlist = Object.keys(lib.characterPack[pack]);
+                for (const play of playlist) {
+                    const div = ui.create.div('.taixuhuanjing_PointPlayDiv');
+                    const rankBody = ui.create.div('.taixuhuanjing_characterDivMobileRankBody2', div);
+                    const playImp1 = ui.create.div('.taixuhuanjing_ChoiceCharacterPlayImp1', div);
+                    const playImp2 = ui.create.div('.taixuhuanjing_ChoiceCharacterPlayImp2', playImp1);
+                    const nameText = ui.create.div('.taixuhuanjing_ChoiceCharacterPlayText', playImp1);
+                    playImp2.setBackground(play, 'character');
+                    nameText.innerHTML = lib.translate[play];
+                    const rarity = game.getRarity(play);
+                    let star;
+                    switch (rarity) {
+                        case 'legend':
+                            star = 5;
+                            break;
+                        case 'epic':
+                            star = 4;
+                            break;
+                        case 'rare':
+                            star = 3;
+                            break;
+                        case 'common':
+                            star = 2;
+                            break;
+                        default:
+                            star = 1;
+                    }
+                    //星级修改
+                    if (lib.config.mode_config.taixuhuanjing.star && lib.config.mode_config.taixuhuanjing.star != 0) star = lib.config.mode_config.taixuhuanjing.star;
+                    while (star-- > 0) {
+                        var starIcon = ui.create.div('.taixuhuanjing_characterDivMobileStarICON2', rankBody);
+                    }
+                    div.listen(function (e) {
+                        game.txhj_playAudioCall('WinButton', null, true);
+                        var skills = get.character(play, 3).slice(0);
+                        game.txhj_TrySkillAudio(skills.randomGet(), { name: play }, null, [1, 2].randomGet());
+                        _status.choiceCharacter = play;
+                        if (playBody.choosingNow) {
+                            playBody.choosingNow.noChoiced();
+                        }
+                        this.choiced();
+                        div.style.boxShadow = '-5px 0px 5px rgba(0,255,0,0.75),0px -5px 5px rgba(0,255,0,0.75),5px 0px 5px rgba(0,255,0,0.75),0px 5px 5px rgba(0,255,0,0.75)';
+                        event.cancelBubble = true;
+                        event.returnValue = false;
+                        return false;
+                    });
+                    div.oncontextmenu = function (e) {
+                        game.txhj_playAudioCall('WinButton', null, true);
+                        ui.click.charactercard(play, null, null, true, this);
+                        event.cancelBubble = true;
+                        event.returnValue = false;
+                        return false;
+                    };
+                    div.choiced = function () {
+                        playBody.choosingNow = this;
+                        div.style.boxShadow = '-5px 0px 5px rgba(255,255,0,0.75),0px -5px 5px rgba(255,255,0,0.75),5px 0px 5px rgba(255,255,0,0.75),0px 5px 5px rgba(255,255,0,0.75)';
+                    };
+                    div.noChoiced = function () {
+                        playBody.choosingNow = null;
+                        div.style.boxShadow = 'none';
+                    };
+                    div.onmouseover = function () {
+                        if (_status.choiceCharacter == undefined || _status.choiceCharacter != play) {
+                            div.style.boxShadow = '-5px 0px 5px rgba(255,255,0,0.75),0px -5px 5px rgba(255,255,0,0.75),5px 0px 5px rgba(255,255,0,0.75),0px 5px 5px rgba(255,255,0,0.75)';
+                        }
+                    };
+                    div.onmouseout = function () {
+                        if (_status.choiceCharacter == undefined || _status.choiceCharacter != play) {
+                            div.style.boxShadow = 'none';
+                        }
+                    };
+                    playBody.appendChild(div);
+                }
                 event.cancelBubble = true;
                 event.returnValue = false;
                 return false;
@@ -1547,11 +1528,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 groupBody.choosingNow = null;
                 div.style.backgroundImage = 'none';
             };
-            return div;
-        }
-        while (grouplist.length) {
-            var group = grouplist.shift();
-            groupBody.appendChild(funcGroup(group));
+            groupBody.appendChild(div);
         }
         var okButton = ui.create.div('.taixuhuanjing_ChoiceCharacterOkButton', '确认选择', body);
         okButton.listen(function (e) {
