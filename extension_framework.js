@@ -1960,7 +1960,6 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
             }
             if (lib.config.taixuhuanjing.hp > 15) lib.config.taixuhuanjing.hp = 15;
             if (lib.config.taixuhuanjing.maxHp > 15) lib.config.taixuhuanjing.maxHp = 15;
-            /*    if (lib.config.taixuhuanjing.maxSkills>10) lib.config.taixuhuanjing.maxSkills = 10;*/
             body.off();
             event.cancelBubble = true;
             event.returnValue = false;
@@ -3028,99 +3027,100 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                         game.txhj_playAudioCall('WinButton', null, true);
                         home.delete();
                         lib.onresize.remove(reLookEventsize);
-                        if (result.result != null && result.enemy.length) {
-                            var number = 1 + result.enemy.length + result.friend.length;
-                            _status.TaiXuHuanJingGame.number = number;
-                            _status.TaiXuHuanJingGame.premise = result.premise;
-                            _status.TaiXuHuanJingGame.event = node;
-                            _status.TaiXuHuanJingGame.season = lib.config.taixuhuanjing.season;
-                            _status.TaiXuHuanJingGame.chapter = lib.config.taixuhuanjing.chapter;
-                            game.eventPack[node.season][node.chapter][node.id].enemy = result.enemy;
-                            game.eventPack[node.season][node.chapter][node.id].friend = result.friend;
-                            game.eventPack[node.season][node.chapter][node.id].spoils = result.spoils;
-                            _status.TaiXuHuanJingGame.enemy = game.eventPack[node.season][node.chapter][node.id].enemy.slice(0);
-                            _status.TaiXuHuanJingGame.friend = game.eventPack[node.season][node.chapter][node.id].friend.slice(0);
-                            _status.TaiXuHuanJingGame.cards = lib.config.taixuhuanjing.cards;
-                            _status.TaiXuHuanJingGame.skills = lib.config.taixuhuanjing.useSkills;
-                            game.chooseCharacterTaiXuHuanJing();
-                            game.txhj_playAudioCall('QuickStart', null, true);
-                            view.off(true);
-                        } else if (result.result != null && result.buttons && result.buttons.length && (!result.enemy || !result.enemy.length)) {
-                            if (result.result != null && get.eventState(node) != true) {
-                                lib.config.taixuhuanjing.events.push(node);
-                                if (result.spoils) {
-                                    var spoils = result.spoils.slice(0);
-                                    for (var i = 0; i < spoils.length; i++) {
-                                        if (Math.random() <= spoils[i].random) {
-                                            game.eventResult(spoils[i]);
+                        if (result.result != null) {
+                            if (result.enemy && result.enemy.length) {
+                                _status.TaiXuHuanJingGame.number = 1 + result.enemy.length + result.friend.length;
+                                _status.TaiXuHuanJingGame.premise = result.premise;
+                                _status.TaiXuHuanJingGame.event = node;
+                                _status.TaiXuHuanJingGame.season = lib.config.taixuhuanjing.season;
+                                _status.TaiXuHuanJingGame.chapter = lib.config.taixuhuanjing.chapter;
+                                const evtid = game.eventPack[node.season][node.chapter][node.id];
+                                evtid.enemy = result.enemy.slice(0);//QQQ天女的考验
+                                evtid.friend = result.friend.slice(0);
+                                evtid.spoils = result.spoils;
+                                _status.TaiXuHuanJingGame.enemy = result.enemy.slice(0);
+                                _status.TaiXuHuanJingGame.friend = result.friend.slice(0);
+                                _status.TaiXuHuanJingGame.cards = lib.config.taixuhuanjing.cards;
+                                _status.TaiXuHuanJingGame.skills = lib.config.taixuhuanjing.useSkills;
+                                game.txhj_playAudioCall('QuickStart', null, true);
+                                view.off(true);//点击进入关卡
+                            } else if (result.buttons && result.buttons.length) {
+                                if (result.result != null && get.eventState(node) != true) {
+                                    lib.config.taixuhuanjing.events.push(node);
+                                    if (result.spoils) {
+                                        var spoils = result.spoils.slice(0);
+                                        for (var i = 0; i < spoils.length; i++) {
+                                            if (Math.random() <= spoils[i].random) {
+                                                game.eventResult(spoils[i]);
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            if (lib.config.taixuhuanjing.optional1 != null) {
-                                var optional = lib.config.taixuhuanjing.optional1;
-                                if (optional.id == node.id && optional.seat == node.seat) {
-                                    lib.config.taixuhuanjing.optional1 = null;
+                                if (lib.config.taixuhuanjing.optional1 != null) {
+                                    var optional = lib.config.taixuhuanjing.optional1;
+                                    if (optional.id == node.id && optional.seat == node.seat) {
+                                        lib.config.taixuhuanjing.optional1 = null;
+                                    }
                                 }
-                            }
-                            if (lib.config.taixuhuanjing.optional2 != null) {
-                                var optional = lib.config.taixuhuanjing.optional2;
-                                if (optional.id == node.id && optional.seat == node.seat) {
-                                    lib.config.taixuhuanjing.optional2 = null;
+                                if (lib.config.taixuhuanjing.optional2 != null) {
+                                    var optional = lib.config.taixuhuanjing.optional2;
+                                    if (optional.id == node.id && optional.seat == node.seat) {
+                                        lib.config.taixuhuanjing.optional2 = null;
+                                    }
                                 }
-                            }
-                            if (lib.config.taixuhuanjing.optional3 != null) {
-                                var optional = lib.config.taixuhuanjing.optional3;
-                                if (optional.id == node.id && optional.seat == node.seat) {
-                                    lib.config.taixuhuanjing.optional3 = null;
+                                if (lib.config.taixuhuanjing.optional3 != null) {
+                                    var optional = lib.config.taixuhuanjing.optional3;
+                                    if (optional.id == node.id && optional.seat == node.seat) {
+                                        lib.config.taixuhuanjing.optional3 = null;
+                                    }
                                 }
-                            }
-                            view.update();
-                            home.delete();
-                            lib.onresize.remove(reLookEventsize);
-                            game.saveConfig('taixuhuanjing', lib.config.taixuhuanjing);
-                            if (result.buttons && result.buttons.length) {
-                                var buttons = result.buttons.slice(0);
-                                game.eventPack[node.season][node.chapter][node.id].buttons = buttons;
-                                node.buttons = buttons;
-                                setTimeout(function () {
-                                    game.lookTrade(node, view);
-                                }, 1000);
-                            }
-                        } else if (result.result != null) {
-                            if (result.result != null && get.eventState(node) != true) {
-                                lib.config.taixuhuanjing.events.push(node);
-                                if (result.spoils) {
-                                    var spoils = result.spoils.slice(0);
-                                    for (var i = 0; i < spoils.length; i++) {
-                                        if (Math.random() <= spoils[i].random) {
-                                            game.eventResult(spoils[i]);
+                                view.update();
+                                home.delete();
+                                lib.onresize.remove(reLookEventsize);
+                                game.saveConfig('taixuhuanjing', lib.config.taixuhuanjing);
+                                if (result.buttons && result.buttons.length) {
+                                    var buttons = result.buttons.slice(0);
+                                    game.eventPack[node.season][node.chapter][node.id].buttons = buttons;
+                                    node.buttons = buttons;
+                                    setTimeout(function () {
+                                        game.lookTrade(node, view);
+                                    }, 1000);
+                                }
+                            } else {
+                                if (result.result != null && get.eventState(node) != true) {
+                                    lib.config.taixuhuanjing.events.push(node);
+                                    if (result.spoils) {
+                                        var spoils = result.spoils.slice(0);
+                                        for (var i = 0; i < spoils.length; i++) {
+                                            if (Math.random() <= spoils[i].random) {
+                                                game.eventResult(spoils[i]);
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            if (lib.config.taixuhuanjing.optional1 != null) {
-                                var optional = lib.config.taixuhuanjing.optional1;
-                                if (optional.id == node.id && optional.seat == node.seat) {
-                                    lib.config.taixuhuanjing.optional1 = null;
+                                if (lib.config.taixuhuanjing.optional1 != null) {
+                                    var optional = lib.config.taixuhuanjing.optional1;
+                                    if (optional.id == node.id && optional.seat == node.seat) {
+                                        lib.config.taixuhuanjing.optional1 = null;
+                                    }
                                 }
-                            }
-                            if (lib.config.taixuhuanjing.optional2 != null) {
-                                var optional = lib.config.taixuhuanjing.optional2;
-                                if (optional.id == node.id && optional.seat == node.seat) {
-                                    lib.config.taixuhuanjing.optional2 = null;
+                                if (lib.config.taixuhuanjing.optional2 != null) {
+                                    var optional = lib.config.taixuhuanjing.optional2;
+                                    if (optional.id == node.id && optional.seat == node.seat) {
+                                        lib.config.taixuhuanjing.optional2 = null;
+                                    }
                                 }
-                            }
-                            if (lib.config.taixuhuanjing.optional3 != null) {
-                                var optional = lib.config.taixuhuanjing.optional3;
-                                if (optional.id == node.id && optional.seat == node.seat) {
-                                    lib.config.taixuhuanjing.optional3 = null;
+                                if (lib.config.taixuhuanjing.optional3 != null) {
+                                    var optional = lib.config.taixuhuanjing.optional3;
+                                    if (optional.id == node.id && optional.seat == node.seat) {
+                                        lib.config.taixuhuanjing.optional3 = null;
+                                    }
                                 }
+                                view.update();
+                                home.delete();
+                                lib.onresize.remove(reLookEventsize);
+                                game.saveConfig('taixuhuanjing', lib.config.taixuhuanjing);
                             }
-                            view.update();
-                            home.delete();
-                            lib.onresize.remove(reLookEventsize);
-                            game.saveConfig('taixuhuanjing', lib.config.taixuhuanjing);
                         }
                         event.cancelBubble = true;
                         event.returnValue = false;
@@ -3128,7 +3128,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                     });
                     return button;
                 }
-                var buttons = game.eventPack[node.season][node.chapter][node.id].buttons.slice(0);
+                const buttons = game.eventPack[node.season][node.chapter][node.id].buttons.slice(0);
                 buttons.randomSort();
                 if (buttons.length == 1 || buttons.length == 3)
                     buttons.push({
@@ -3142,12 +3142,12 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                         skill: [],
                     });
                 if (buttons.length < 3) {
-                    while (buttons.length) {
-                        buttonbg.appendChild(func2(buttons.shift()));
+                    for (const button of buttons) {
+                        buttonbg.appendChild(func2(button));
                     }
                 } else {
-                    while (buttons.length) {
-                        buttonbg.appendChild(func(buttons.shift()));
+                    for (const button of buttons) {
+                        buttonbg.appendChild(func(button));
                     }
                 }
                 return buttonbg;
@@ -3486,12 +3486,12 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                         skill: [],
                     });
                 if (buttons.length < 3) {
-                    while (buttons.length) {
-                        buttonbg.appendChild(func2(buttons.shift()));
+                    for (const button of buttons) {
+                        buttonbg.appendChild(func2(button));
                     }
                 } else {
-                    while (buttons.length) {
-                        buttonbg.appendChild(func(buttons.shift()));
+                    for (const button of buttons) {
+                        buttonbg.appendChild(func(button));
                     }
                 }
                 return buttonbg;
@@ -3656,12 +3656,12 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                         skill: [],
                     });
                 if (buttons.length < 3) {
-                    while (buttons.length) {
-                        buttonbg.appendChild(func2(buttons.shift()));
+                    for (const button of buttons) {
+                        buttonbg.appendChild(func2(button));
                     }
                 } else {
-                    while (buttons.length) {
-                        buttonbg.appendChild(func(buttons.shift()));
+                    for (const button of buttons) {
+                        buttonbg.appendChild(func(button));
                     }
                 }
                 return buttonbg;
@@ -3930,21 +3930,21 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         textBox.update();
         var button = ui.create.div('.taixuhuanjing_lookEventHomeButton', '挑战', box);
         button.addEventListener('click', function () {
+            const evtid = game.eventPack[node.season][node.chapter][node.id];
             game.txhj_playAudioCall('WinButton', null, true);
-            var number = 1 + game.eventPack[node.season][node.chapter][node.id].enemy.length + game.eventPack[node.season][node.chapter][node.id].friend.length;
-            _status.TaiXuHuanJingGame.number = number;
-            _status.TaiXuHuanJingGame.premise = game.eventPack[node.season][node.chapter][node.id].premise;
+            _status.TaiXuHuanJingGame.number = 1 + evtid.enemy.length + evtid.friend.length;
+            _status.TaiXuHuanJingGame.premise = evtid.premise;
             _status.TaiXuHuanJingGame.event = node;
             _status.TaiXuHuanJingGame.season = lib.config.taixuhuanjing.season;
             _status.TaiXuHuanJingGame.chapter = lib.config.taixuhuanjing.chapter;
-            _status.TaiXuHuanJingGame.enemy = game.eventPack[node.season][node.chapter][node.id].enemy.slice(0);
-            _status.TaiXuHuanJingGame.friend = game.eventPack[node.season][node.chapter][node.id].friend.slice(0);
+            _status.TaiXuHuanJingGame.enemy = evtid.enemy.slice(0);
+            _status.TaiXuHuanJingGame.friend = evtid.friend.slice(0);
             _status.TaiXuHuanJingGame.cards = lib.config.taixuhuanjing.cards;
             _status.TaiXuHuanJingGame.skills = lib.config.taixuhuanjing.useSkills;
             game.txhj_playAudioCall('QuickStart', null, true);
             home.delete();
             lib.onresize.remove(reLookEventsize);
-            view.off(true);
+            view.off(true);//点击进入关卡
             event.cancelBubble = true;
             event.returnValue = false;
             return false;
@@ -7405,6 +7405,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
         const enemys = _status.TaiXuHuanJingGame.enemy.slice(0); //敌方
         const friends = _status.TaiXuHuanJingGame.friend.slice(0); //友方
         const players = enemys.concat(friends); //比game.players少一个玩家
+        debugger;
         game.players.forEach(async function (player, index, array) {
             player.getId();
             player.classList.remove('turnedover', 'out');
@@ -7414,6 +7415,7 @@ game.import('太虚幻境', function (lib, game, ui, get, ai, _status) {
                 player.identity = 'zhu';
             } else {
                 const info = players[index - 1];
+                debugger;
                 player.exten = info;
                 if (friends.includes(info)) {
                     player.side = true;
